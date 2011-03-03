@@ -16,6 +16,12 @@ namespace SimpleDevelop
 {
     public partial class MainWindow : DXWindow
     {
+        class BuildWorkerInput
+        {
+            public string Code { get; set; }
+            public CodeDomParameters Parameters { get; set; }
+        }
+
         private TextEditor _textEditor;
         private BackgroundWorker _buildWorker;
 
@@ -89,9 +95,18 @@ namespace SimpleDevelop
 
         private void BuildWorkerDoWork(object sender, DoWorkEventArgs e)
         {
-            var code = (string)e.Argument;
+            var input = (BuildWorkerInput)e.Argument;
+
+            string code = input.Code;
 
             var executor = new CSharpCodeExecutor();
+
+            // Wow, this is hideous and needs to be refactored.
+            executor.Parameters.MainClass = input.Parameters.MainClass;
+            foreach (string reference in input.Parameters.References)
+            {
+                executor.Parameters.References.Add(reference);
+            }
 
             executor.BuildOutput += (obj, args) =>
             {
@@ -115,7 +130,21 @@ namespace SimpleDevelop
         {
             _buildRunItem.IsEnabled = false;
             _outputTextBox.Clear();
-            _buildWorker.RunWorkerAsync(_textEditor.Text);
+
+            var parameters = new CodeDomParameters();
+            parameters.MainClass = "Program";
+            foreach (string reference in _referencesControl.SelectedReferences)
+            {
+                parameters.References.Add(reference);
+            }
+
+            var input = new BuildWorkerInput
+            {
+                Code = _textEditor.Text,
+                Parameters = parameters
+            };
+
+            _buildWorker.RunWorkerAsync(input);
         }
 
         private void NewItemItemClick(object sender, ItemClickEventArgs e)

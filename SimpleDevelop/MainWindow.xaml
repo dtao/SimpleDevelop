@@ -52,17 +52,23 @@
         </dxb:BarManager.Bars>
         
         <dxd:DockLayoutManager>
-            <dxd:LayoutGroup>
-                <dxd:LayoutGroup Orientation="Vertical"  Width="3*">
-                    <dxd:DocumentGroup Name="_codeGroup" Height="3*" SelectedTabIndex="0">
-                        <dxd:DocumentPanel Name="_codePanel" Caption="Default.cs" Height="3*" AllowClose="False" AllowFloat="False" AllowHide="False">
-                        </dxd:DocumentPanel>
+            <dxd:LayoutGroup Orientation="Horizontal">
+                <dxd:LayoutGroup Orientation="Vertical" Width="3*">
+                    <dxd:DocumentGroup Name="_codeGroup" Height="3*" AllowClose="False" AllowFloat="False" AllowHide="False">
+                        <dxd:DocumentPanel Name="_codePanel" Caption="Default.cs" Height="3*" AllowClose="False" />
                     </dxd:DocumentGroup>
                     <dxd:LayoutPanel Name="_outputPanel" Caption="Build Output" Height="*" AllowClose="False" AllowFloat="False" AllowHide="False">
-                        <TextBox Name="_outputTextBox" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" />
+                        <TextBox Name="_outputTextBox" IsReadOnly="True" />
                     </dxd:LayoutPanel>
                 </dxd:LayoutGroup>
             </dxd:LayoutGroup>
+            <dxd:DockLayoutManager.AutoHideGroups>
+                <dxd:AutoHideGroup Caption="References" DockType="Right">
+                    <dxd:LayoutPanel Name="_referencesPanel" Caption="References" AllowClose="False" AllowFloat="False">
+                        <local:ReferencesControl x:Name="_referencesControl" />
+                    </dxd:LayoutPanel>
+                </dxd:AutoHideGroup>
+            </dxd:DockLayoutManager.AutoHideGroups>
         </dxd:DockLayoutManager>
 
     </dxb:BarManager>

@@ -29,8 +29,13 @@ namespace SimpleDevelop.Core
             var options = new CompilerParameters
             {
                 GenerateExecutable = true,
-                MainClass = Parameters.MainClass
+                MainClass = Parameters.MainClass,
             };
+
+            foreach (string reference in Parameters.References)
+            {
+                options.ReferencedAssemblies.Add(reference);
+            }
 
             CompilerResults results = _codeProvider.CompileAssemblyFromSource(options, code.ToArray());
 
