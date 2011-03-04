@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <GroupBox Grid.Row="0" Header="Available">
-            <ListBox Name="_referencesListBox" MouseDoubleClick="_referencesListBox_MouseDoubleClick" />
+            <ListBox Name="_referencesListBox" MouseDoubleClick="ReferencesListBoxMouseDoubleClick" />
         </GroupBox>
         
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" />

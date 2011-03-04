@@ -68,8 +68,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CodeCompletionHelper.cs" />
+    <Compile Include="CodeCompletion\Class1.cs" />
+    <Compile Include="CodeCompletion\ConstantCompletionData.cs" />
+    <Compile Include="CodeCompletion\EnumCompletionData.cs" />
+    <Compile Include="CodeCompletion\StructCompletionData.cs" />
     <Compile Include="Collections\ListBase.cs" />
-    <Compile Include="CompletionData.cs" />
+    <Compile Include="CodeCompletion\CompletionData.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -79,6 +84,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Reference.cs" />
+    <Compile Include="ReferenceAddedEventArgs.cs" />
     <Compile Include="ReferencesControl.xaml.cs">
       <DependentUpon>ReferencesControl.xaml</DependentUpon>
     </Compile>
@@ -131,6 +137,39 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Icons\Open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\classPublic.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\constantPublic.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\delegate.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\enumPublic.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\event.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\interface.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\methodPublic.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\namespace.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\propertyPublic.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\struct.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Code\variablePublic.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

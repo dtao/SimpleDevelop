@@ -67,6 +67,20 @@ namespace SimpleDevelop.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap ClassPublic {
+            get {
+                object obj = ResourceManager.GetObject("ClassPublic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap ConstantPublic {
+            get {
+                object obj = ResourceManager.GetObject("ConstantPublic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to using System;
         ///
@@ -84,9 +98,51 @@ namespace SimpleDevelop.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap Delegate {
+            get {
+                object obj = ResourceManager.GetObject("Delegate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap EnumPublic {
+            get {
+                object obj = ResourceManager.GetObject("EnumPublic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Event {
+            get {
+                object obj = ResourceManager.GetObject("Event", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap Exit {
             get {
                 object obj = ResourceManager.GetObject("Exit", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Interface {
+            get {
+                object obj = ResourceManager.GetObject("Interface", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap MethodPublic {
+            get {
+                object obj = ResourceManager.GetObject("MethodPublic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Namespace {
+            get {
+                object obj = ResourceManager.GetObject("Namespace", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -105,9 +161,30 @@ namespace SimpleDevelop.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap PropertyPublic {
+            get {
+                object obj = ResourceManager.GetObject("PropertyPublic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap Save {
             get {
                 object obj = ResourceManager.GetObject("Save", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Struct {
+            get {
+                object obj = ResourceManager.GetObject("Struct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap VariablePublic {
+            get {
+                object obj = ResourceManager.GetObject("VariablePublic", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

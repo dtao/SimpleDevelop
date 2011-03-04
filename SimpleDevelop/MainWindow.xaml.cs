@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -7,7 +8,9 @@ using DevExpress.Xpf.Bars;
 using DevExpress.Xpf.Core;
 
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Highlighting;
+using SimpleDevelop.CodeCompletion;
 using SimpleDevelop.Core;
 using Microsoft.Win32;
 using System.IO;
@@ -24,10 +27,8 @@ namespace SimpleDevelop
 
         private TextEditor _textEditor;
         private BackgroundWorker _buildWorker;
-
-        // In case code completion is ever implemented, the below will be
-        // necessary.
-        //private CompletionWindow _completionWindow;
+        private CodeCompletionHelper _codeCompletionHelper;
+        private CompletionWindow _completionWindow;
 
         public MainWindow()
         {
@@ -56,40 +57,58 @@ namespace SimpleDevelop
             _buildWorker.DoWork += BuildWorkerDoWork;
             _buildWorker.ProgressChanged += BuildWorkerProgressChanged;
             _buildWorker.RunWorkerCompleted += BuildWorkerRunWorkerCompleted;
+
+            _codeCompletionHelper = new CodeCompletionHelper();
+
+            _referencesControl.ReferenceAdded += ReferencesControlReferenceAdded;
+
+            CompletionData.Initialize();
         }
 
         private void TextEditorTextAreaTextEntered(object sender, TextCompositionEventArgs e)
         {
             if (e.Text == ".")
             {
-                // If it's ever decided to implement code completion, code LIKE
-                // the below may serve as a starting point.
+                _completionWindow = new CompletionWindow(_textEditor.TextArea);
 
-                //_completionWindow = new CompletionWindow(_textEditor.TextArea);
+                int index = _textEditor.SelectionStart - 1;
+                if (index > 0)
+                {
+                    int previousSpaceLocation = index;
+                    while (previousSpaceLocation > 0)
+                    {
+                        char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
 
-                //int index = _textEditor.SelectionStart - 1;
-                //if (index > 0)
-                //{
-                //    int previousSpaceLocation = index;
-                //    while (previousSpaceLocation > 0 && !char.IsWhiteSpace(_textEditor.Document.GetCharAt(previousSpaceLocation - 1)))
-                //    {
-                //        --previousSpaceLocation;
-                //    }
+                        if (char.IsWhiteSpace(c) || c == '(' || c == '.')
+                        {
+                            break;
+                        }
 
-                //    string token = _textEditor.Document.GetText(previousSpaceLocation, index - previousSpaceLocation);
-                //}
+                        --previousSpaceLocation;
+                    }
 
-                //IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
-                //data.Add(new CompletionData("Test 1"));
-                //data.Add(new CompletionData("Test 2"));
-                //data.Add(new CompletionData("Test 3"));
+                    string token = _textEditor.Document.GetText(previousSpaceLocation, index - previousSpaceLocation);
 
-                //_completionWindow.Closed += (obj, args) =>
-                //{
-                //    _completionWindow = null;
-                //};
+                    IList<ICompletionData> completionData = _codeCompletionHelper.GetCompletionData(token);
+                    if (completionData.Count > 0)
+                    {
+                        foreach (ICompletionData known in _codeCompletionHelper.GetCompletionData(token))
+                        {
+                            _completionWindow.CompletionList.CompletionData.Add(known);
+                        }
 
-                //_completionWindow.Show();
+                        _completionWindow.Closed += (obj, args) =>
+                        {
+                            _completionWindow = null;
+                        };
+
+                        _completionWindow.Show();
+                    }
+                    else
+                    {
+                        _completionWindow = null;
+                    }
+                }
             }
         }
 
@@ -211,6 +230,12 @@ namespace SimpleDevelop
         private void ExitItemItemClick(object sender, ItemClickEventArgs e)
         {
             Close();
+        }
+
+        private void ReferencesControlReferenceAdded(object sender, ReferenceAddedEventArgs e)
+        {
+            string reference = e.Reference;
+            _codeCompletionHelper.AddReference(reference);
         }
 
         private static void ResetText(TextEditor textEditor)

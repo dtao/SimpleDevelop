@@ -32,8 +32,11 @@ namespace SimpleDevelop
 
             _referencesLoader.DoWork += ReferencesLoaderDoWork;
             _referencesLoader.ProgressChanged += ReferencesLoaderProgressChanged;
+            _referencesLoader.RunWorkerCompleted += ReferencesLoaderRunWorkerCompleted;
             _referencesLoader.RunWorkerAsync();
         }
+
+        public event EventHandler<ReferenceAddedEventArgs> ReferenceAdded;
 
         public IEnumerable<string> SelectedReferences
         {
@@ -44,12 +47,6 @@ namespace SimpleDevelop
 
                 return selectedFilePaths.ToList();
             }
-        }
-
-        private void ReferencesLoaderProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            string filePath = (string)e.UserState;
-            _references.Add(new Reference(filePath));
         }
 
         private void ReferencesLoaderDoWork(object sender, DoWorkEventArgs e)
@@ -66,22 +63,54 @@ namespace SimpleDevelop
             Array.Sort(directories, StringComparer.OrdinalIgnoreCase);
             Array.Reverse(directories);
 
-            IEnumerable<string> files = Directory.EnumerateFiles(directories[0], "*.dll");
+            string frameworkDirectory = directories[0];
+            e.Result = frameworkDirectory;
+            IEnumerable<string> files = Directory.EnumerateFiles(frameworkDirectory, "*.dll");
             foreach (string file in files)
             {
                 _referencesLoader.ReportProgress(0, file);
             }
         }
 
-        private void _referencesListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ReferencesLoaderProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            string filePath = (string)e.UserState;
+            _references.Add(new Reference(filePath));
+        }
+
+        private void ReferencesLoaderRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            var frameworkDirectory = e.Result as string;
+            if (frameworkDirectory != null)
+            {
+                AddReference(new Reference(Path.Combine(frameworkDirectory, "mscorlib.dll")));
+            }
+        }
+
+        private void ReferencesListBoxMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var selectedReference = _referencesListBox.SelectedItem as Reference;
             if (selectedReference != null)
             {
-                if (!_selectedReferences.Contains(selectedReference))
-                {
-                    _selectedReferences.Add(selectedReference);
-                }
+                AddReference(selectedReference);
+            }
+        }
+
+        private void AddReference(Reference reference)
+        {
+            if (!_selectedReferences.Contains(reference))
+            {
+                _selectedReferences.Add(reference);
+                OnReferenceAdded(reference.FilePath);
+            }
+        }
+
+        protected void OnReferenceAdded(string reference)
+        {
+            EventHandler<ReferenceAddedEventArgs> handler = ReferenceAdded;
+            if (handler != null)
+            {
+                handler(this, new ReferenceAddedEventArgs(reference));
             }
         }
     }
