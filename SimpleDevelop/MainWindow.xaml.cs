@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+
 using DevExpress.Xpf.Bars;
 using DevExpress.Xpf.Core;
-
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Highlighting;
+using Microsoft.Win32;
 using SimpleDevelop.CodeCompletion;
 using SimpleDevelop.Core;
-using Microsoft.Win32;
-using System.IO;
 
 namespace SimpleDevelop
 {
@@ -25,8 +26,9 @@ namespace SimpleDevelop
             public CodeDomParameters Parameters { get; set; }
         }
 
-        private TextEditor _textEditor;
         private BackgroundWorker _buildWorker;
+        private BackgroundWorker _lexerWorker;
+        private bool _runLexerAgain;
         private CodeCompletionHelper _codeCompletionHelper;
         private CompletionWindow _completionWindow;
 
@@ -34,17 +36,7 @@ namespace SimpleDevelop
         {
             InitializeComponent();
 
-            _textEditor = new TextEditor
-            {
-                FontFamily = new FontFamily("Consolas"),
-                FontSize = 12f,
-                Padding = new Thickness(12.0),
-                SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".cs")
-            };
-
             ResetText(_textEditor);
-
-            _textEditor.TextArea.TextEntered += TextEditorTextAreaTextEntered;
 
             _codePanel.Content = _textEditor;
 
@@ -58,57 +50,43 @@ namespace SimpleDevelop
             _buildWorker.ProgressChanged += BuildWorkerProgressChanged;
             _buildWorker.RunWorkerCompleted += BuildWorkerRunWorkerCompleted;
 
+            _lexerWorker = new BackgroundWorker();
+
+            _lexerWorker.DoWork += LexerWorkerDoWork;
+            _lexerWorker.RunWorkerCompleted += LexerWorkerRunWorkerCompleted;
+
             _codeCompletionHelper = new CodeCompletionHelper();
+
+            _textEditor.TextArea.TextEntered += TextEditorTextAreaTextEntered;
+            _textEditor.TextChanged += TextEditorTextChanged;
 
             _referencesControl.ReferenceAdded += ReferencesControlReferenceAdded;
 
             CompletionData.Initialize();
         }
 
-        private void TextEditorTextAreaTextEntered(object sender, TextCompositionEventArgs e)
+        private void LexerWorkerDoWork(object sender, DoWorkEventArgs e)
         {
-            if (e.Text == ".")
+            DateTime startTime = DateTime.Now;
+
+            _codeCompletionHelper.ProcessCode((string)e.Argument);
+
+            DateTime endTime = DateTime.Now;
+            TimeSpan duration = endTime - startTime;
+
+            if (duration.TotalSeconds < 5.0)
             {
-                _completionWindow = new CompletionWindow(_textEditor.TextArea);
+                TimeSpan remainder = TimeSpan.FromSeconds(5.0) - duration;
+                Thread.Sleep(remainder);
+            }
+        }
 
-                int index = _textEditor.SelectionStart - 1;
-                if (index > 0)
-                {
-                    int previousSpaceLocation = index;
-                    while (previousSpaceLocation > 0)
-                    {
-                        char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
-
-                        if (char.IsWhiteSpace(c) || c == '(')
-                        {
-                            break;
-                        }
-
-                        --previousSpaceLocation;
-                    }
-
-                    string token = _textEditor.Document.GetText(previousSpaceLocation, index - previousSpaceLocation);
-
-                    IList<ICompletionData> completionData = _codeCompletionHelper.GetCompletionData(token);
-                    if (completionData.Count > 0)
-                    {
-                        foreach (ICompletionData known in _codeCompletionHelper.GetCompletionData(token))
-                        {
-                            _completionWindow.CompletionList.CompletionData.Add(known);
-                        }
-
-                        _completionWindow.Closed += (obj, args) =>
-                        {
-                            _completionWindow = null;
-                        };
-
-                        _completionWindow.Show();
-                    }
-                    else
-                    {
-                        _completionWindow = null;
-                    }
-                }
+        void LexerWorkerRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (_runLexerAgain)
+            {
+                _lexerWorker.RunWorkerAsync();
+                _runLexerAgain = false;
             }
         }
 
@@ -230,6 +208,65 @@ namespace SimpleDevelop
         private void ExitItemItemClick(object sender, ItemClickEventArgs e)
         {
             Close();
+        }
+
+        private void TextEditorTextAreaTextEntered(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text == ".")
+            {
+                _completionWindow = new CompletionWindow(_textEditor.TextArea);
+
+                int index = _textEditor.SelectionStart - 1;
+                if (index > 0)
+                {
+                    int previousSpaceLocation = index;
+                    while (previousSpaceLocation > 0)
+                    {
+                        char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
+
+                        if (char.IsWhiteSpace(c) || c == '(')
+                        {
+                            break;
+                        }
+
+                        --previousSpaceLocation;
+                    }
+
+                    string token = _textEditor.Document.GetText(previousSpaceLocation, index - previousSpaceLocation);
+
+                    IList<ICompletionData> completionData = _codeCompletionHelper.GetCompletionData(token);
+                    if (completionData.Count > 0)
+                    {
+                        foreach (ICompletionData known in _codeCompletionHelper.GetCompletionData(token))
+                        {
+                            _completionWindow.CompletionList.CompletionData.Add(known);
+                        }
+
+                        _completionWindow.Closed += (obj, args) =>
+                        {
+                            _completionWindow = null;
+                        };
+
+                        _completionWindow.Show();
+                    }
+                    else
+                    {
+                        _completionWindow = null;
+                    }
+                }
+            }
+        }
+
+        private void TextEditorTextChanged(object sender, EventArgs e)
+        {
+            if (!_lexerWorker.IsBusy)
+            {
+                _lexerWorker.RunWorkerAsync(_textEditor.Text);
+            }
+            else
+            {
+                _runLexerAgain = true;
+            }
         }
 
         private void ReferencesControlReferenceAdded(object sender, ReferenceAddedEventArgs e)

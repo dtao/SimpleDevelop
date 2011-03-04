@@ -2,6 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:SimpleDevelop"
+    xmlns:ae="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
     xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars"
     xmlns:dxd="http://schemas.devexpress.com/winfx/2008/xaml/docking"
@@ -55,7 +56,14 @@
             <dxd:LayoutGroup Orientation="Horizontal">
                 <dxd:LayoutGroup Orientation="Vertical" Width="3*">
                     <dxd:DocumentGroup Name="_codeGroup" Height="3*" AllowClose="False" AllowFloat="False" AllowHide="False">
-                        <dxd:DocumentPanel Name="_codePanel" Caption="Default.cs" Height="3*" AllowClose="False" />
+                        <dxd:DocumentPanel Name="_codePanel" Caption="Default.cs" Height="3*" AllowClose="False">
+                            <ae:TextEditor Name="_textEditor"
+                                FontFamily="Consolas"
+                                FontSize="12"
+                                Padding="12"
+                                SyntaxHighlighting="C#">
+                            </ae:TextEditor>
+                        </dxd:DocumentPanel>
                     </dxd:DocumentGroup>
                     <dxd:LayoutPanel Name="_outputPanel" Caption="Build Output" Height="*" AllowClose="False" AllowFloat="False" AllowHide="False">
                         <TextBox Name="_outputTextBox" IsReadOnly="True" />
@@ -64,7 +72,7 @@
             </dxd:LayoutGroup>
             <dxd:DockLayoutManager.AutoHideGroups>
                 <dxd:AutoHideGroup Caption="References" DockType="Right">
-                    <dxd:LayoutPanel Name="_referencesPanel" Caption="References" AllowClose="False" AllowFloat="False">
+                    <dxd:LayoutPanel Name="_referencesPanel" Caption="References" Width="250" AllowClose="False" AllowFloat="False">
                         <local:ReferencesControl x:Name="_referencesControl" />
                     </dxd:LayoutPanel>
                 </dxd:AutoHideGroup>

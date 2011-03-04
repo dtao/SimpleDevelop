@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
 using ICSharpCode.AvalonEdit.CodeCompletion;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Parser;
+using ICSharpCode.NRefactory.Visitors;
+using ICSharpCode.NRefactory.Ast;
+using ICSharpCode.NRefactory.AstBuilder;
 using SimpleDevelop.CodeCompletion;
 
 namespace SimpleDevelop
@@ -26,10 +32,65 @@ namespace SimpleDevelop
             return EmptyData;
         }
 
+        public void ProcessCode(string code)
+        {
+            using (var reader = new StringReader(code))
+            using (IParser parser = ParserFactory.CreateParser(SupportedLanguage.CSharp, reader))
+            using (ILexer lexer = parser.Lexer)
+            {
+                try
+                {
+                    parser.Parse();
+
+                    if (parser.Errors.Count > 0)
+                    {
+
+                    }
+
+                    ProcessNode(parser.CompilationUnit);
+                }
+                catch
+                { }
+            }
+        }
+
         public void AddReference(string assemblyPath)
         {
             Action<string> loadReference = LoadReference;
             loadReference.BeginInvoke(assemblyPath, loadReference.EndInvoke, null);
+        }
+
+        private void ProcessNode(INode node)
+        {
+            string value = node.ToString();
+
+            var method = node as MethodDeclaration;
+            if (method != null)
+            {
+                ProcessMethod(method);
+            }
+
+            var local = node as LocalVariableDeclaration;
+            if (local != null)
+            {
+                ProcessLocals(local);
+            }
+
+            foreach (INode child in node.Children)
+            {
+                ProcessNode(child);
+            }
+        }
+
+        private void ProcessMethod(MethodDeclaration method)
+        {
+            ProcessNode(method.Body);
+        }
+
+        private void ProcessLocals(LocalVariableDeclaration locals)
+        {
+            var method = locals.Parent as MethodDeclaration;
+            // TODO: finish implementing ProcessLocals
         }
 
         private void LoadReference(string assemblyPath)
