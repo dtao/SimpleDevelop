@@ -79,7 +79,7 @@ namespace SimpleDevelop
                     {
                         char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
 
-                        if (char.IsWhiteSpace(c) || c == '(' || c == '.')
+                        if (char.IsWhiteSpace(c) || c == '(')
                         {
                             break;
                         }

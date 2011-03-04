@@ -166,9 +166,27 @@ namespace SimpleDevelop
                                        group d by d.Text into g
                                        select g.First();
 
-                    _completionItems[type.Name] = distinctData.ToArray();
+                    _completionItems[GetTypeKey(type)] = distinctData.ToArray();
                 }
             }
+        }
+
+        private static string GetTypeKey(Type type)
+        {
+            string typeKey = type.FullName;
+
+            int lastPeriodLocation = typeKey.LastIndexOf('.');
+            if (lastPeriodLocation != -1)
+            {
+                typeKey = typeKey.Substring(lastPeriodLocation + 1);
+            }
+
+            if (typeKey.Contains('+'))
+            {
+                typeKey = typeKey.Replace('+', '.');
+            }
+
+            return typeKey;
         }
     }
 }
