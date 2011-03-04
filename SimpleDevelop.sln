@@ -6,9 +6,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDevelop.Core", "SimpleDevelop.Core\SimpleDevelop.Core.csproj", "{CF193E1E-EB62-46F5-B3A5-0BD82B688E69}"
 EndProject
 Project("{6141683F-8A12-4E36-9623-2EB02B2C2303}") = "SimpleDevelop.Setup", "SimpleDevelop.Setup\SimpleDevelop.Setup.isproj", "{ABFEF43C-4FB6-43A3-8694-E4576DFD9017}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9EB15F91-75A4-48EF-82B6-035E297839E3} = {9EB15F91-75A4-48EF-82B6-035E297839E3}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
