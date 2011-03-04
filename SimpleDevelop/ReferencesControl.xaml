@@ -14,7 +14,15 @@
         </Grid.RowDefinitions>
 
         <GroupBox Grid.Row="0" Header="Available">
-            <ListBox Name="_referencesListBox" MouseDoubleClick="ReferencesListBoxMouseDoubleClick" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <TextBox Name="_referencesFilterTextBox" Grid.Row="0" Margin="5" TextChanged="ReferencesFilterTextBoxTextChanged" />
+                <ListBox Name="_referencesListBox" Grid.Row="1" MouseDoubleClick="ReferencesListBoxMouseDoubleClick" />
+            </Grid>
         </GroupBox>
         
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" />

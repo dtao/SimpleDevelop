@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.IO;
+using System.Threading;
 
 using SimpleDevelop.Collections;
 
@@ -15,6 +16,8 @@ namespace SimpleDevelop
     public partial class ReferencesControl : UserControl
     {
         private BackgroundWorker _referencesLoader;
+        private BackgroundWorker _filterUpdater;
+        private bool _waitToUpdateFilter;
         private SortedObservableCollection<Reference> _references;
         private SortedObservableCollection<Reference> _selectedReferences;
 
@@ -34,6 +37,37 @@ namespace SimpleDevelop
             _referencesLoader.ProgressChanged += ReferencesLoaderProgressChanged;
             _referencesLoader.RunWorkerCompleted += ReferencesLoaderRunWorkerCompleted;
             _referencesLoader.RunWorkerAsync();
+
+            _filterUpdater = new BackgroundWorker();
+
+            _filterUpdater.DoWork += new DoWorkEventHandler(FilterUpdaterDoWork);
+            _filterUpdater.RunWorkerCompleted += new RunWorkerCompletedEventHandler(FilterUpdaterRunWorkerCompleted);
+        }
+
+        private void FilterUpdaterDoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(500);
+        }
+
+        void FilterUpdaterRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (_waitToUpdateFilter)
+            {
+                _filterUpdater.RunWorkerAsync();
+                _waitToUpdateFilter = false;
+            }
+            else
+            {
+                string filter = _referencesFilterTextBox.Text;
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    _referencesListBox.ItemsSource = _references.Where(r => r.FileName.Contains(filter)).ToList();
+                }
+                else
+                {
+                    _referencesListBox.ItemsSource = _references;
+                }
+            }
         }
 
         public event EventHandler<ReferenceAddedEventArgs> ReferenceAdded;
@@ -46,6 +80,18 @@ namespace SimpleDevelop
                                         select s.FilePath;
 
                 return selectedFilePaths.ToList();
+            }
+        }
+
+        private void ReferencesFilterTextBoxTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!_filterUpdater.IsBusy)
+            {
+                _filterUpdater.RunWorkerAsync();
+            }
+            else
+            {
+                _waitToUpdateFilter = true;
             }
         }
 
