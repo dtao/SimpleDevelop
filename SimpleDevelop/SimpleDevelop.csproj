@@ -78,6 +78,7 @@
     <Compile Include="CodeCompletion\StructCompletionData.cs" />
     <Compile Include="Collections\ListBase.cs" />
     <Compile Include="CodeCompletion\CompletionData.cs" />
+    <Compile Include="Collections\ListExtensions.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

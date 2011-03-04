@@ -11,6 +11,7 @@ using DevExpress.Xpf.Bars;
 using DevExpress.Xpf.Core;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
+using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.Win32;
 using SimpleDevelop.CodeCompletion;
@@ -85,7 +86,7 @@ namespace SimpleDevelop
         {
             if (_runLexerAgain)
             {
-                _lexerWorker.RunWorkerAsync();
+                _lexerWorker.RunWorkerAsync(_textEditor.Text);
                 _runLexerAgain = false;
             }
         }
@@ -214,45 +215,34 @@ namespace SimpleDevelop
         {
             if (e.Text == ".")
             {
+                int line, column;
+                string token = GetCurrentToken(out line, out column);
+
+                if (string.IsNullOrEmpty(token))
+                {
+                    return;
+                }
+
                 _completionWindow = new CompletionWindow(_textEditor.TextArea);
 
-                int index = _textEditor.SelectionStart - 1;
-                if (index > 0)
+                IList<ICompletionData> completionData = _codeCompletionHelper.GetCompletionData(token, line, column);
+                if (completionData.Count > 0)
                 {
-                    int previousSpaceLocation = index;
-                    while (previousSpaceLocation > 0)
+                    foreach (ICompletionData known in completionData)
                     {
-                        char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
-
-                        if (char.IsWhiteSpace(c) || c == '(')
-                        {
-                            break;
-                        }
-
-                        --previousSpaceLocation;
+                        _completionWindow.CompletionList.CompletionData.Add(known);
                     }
 
-                    string token = _textEditor.Document.GetText(previousSpaceLocation, index - previousSpaceLocation);
-
-                    IList<ICompletionData> completionData = _codeCompletionHelper.GetCompletionData(token);
-                    if (completionData.Count > 0)
-                    {
-                        foreach (ICompletionData known in _codeCompletionHelper.GetCompletionData(token))
-                        {
-                            _completionWindow.CompletionList.CompletionData.Add(known);
-                        }
-
-                        _completionWindow.Closed += (obj, args) =>
-                        {
-                            _completionWindow = null;
-                        };
-
-                        _completionWindow.Show();
-                    }
-                    else
+                    _completionWindow.Closed += (obj, args) =>
                     {
                         _completionWindow = null;
-                    }
+                    };
+
+                    _completionWindow.Show();
+                }
+                else
+                {
+                    _completionWindow = null;
                 }
             }
         }
@@ -273,6 +263,38 @@ namespace SimpleDevelop
         {
             string reference = e.Reference;
             _codeCompletionHelper.AddReference(reference);
+        }
+
+        private string GetCurrentToken(out int line, out int column)
+        {
+            int index = _textEditor.SelectionStart - 1;
+            if (index > 0)
+            {
+                int previousSpaceLocation = index;
+                while (previousSpaceLocation > 0)
+                {
+                    char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
+
+                    if (char.IsWhiteSpace(c) || c == '(')
+                    {
+                        break;
+                    }
+
+                    --previousSpaceLocation;
+                }
+
+                string token = _textEditor.Document.GetText(previousSpaceLocation, index - previousSpaceLocation);
+
+                TextLocation location = _textEditor.Document.GetLocation(previousSpaceLocation);
+                line = location.Line;
+                column = location.Column;
+
+                return token;
+            }
+
+            line = -1;
+            column = -1;
+            return "";
         }
 
         private static void ResetText(TextEditor textEditor)

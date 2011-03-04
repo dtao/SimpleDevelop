@@ -7,26 +7,106 @@ using System.Reflection;
 
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.NRefactory;
-using ICSharpCode.NRefactory.Parser;
-using ICSharpCode.NRefactory.Visitors;
 using ICSharpCode.NRefactory.Ast;
-using ICSharpCode.NRefactory.AstBuilder;
 using SimpleDevelop.CodeCompletion;
+using SimpleDevelop.Collections;
 
 namespace SimpleDevelop
 {
     class CodeCompletionHelper
     {
+        struct Loc : IComparable<Loc>
+        {
+            public readonly int Line;
+            public readonly int Column;
+
+            public Loc(int line, int column)
+            {
+                Line = line;
+                Column = column;
+            }
+
+            public int CompareTo(Loc other)
+            {
+                int result = Line.CompareTo(other.Line);
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                return Column.CompareTo(other.Column);
+            }
+        }
+
         private static readonly ICompletionData[] EmptyData = new ICompletionData[0];
 
-        private ConcurrentDictionary<string, ICompletionData[]> _completionItems = new ConcurrentDictionary<string, ICompletionData[]>();
+        private SortedList<Loc, Dictionary<string, string>> _fields = new SortedList<Loc, Dictionary<string, string>>();
+        private object _fieldsLock = new object();
+        private SortedList<Loc, Dictionary<string, string>> _locals = new SortedList<Loc, Dictionary<string, string>>();
+        private object _localsLock = new object();
+        private ConcurrentDictionary<string, ICompletionData[]> _staticCompletionItems = new ConcurrentDictionary<string, ICompletionData[]>();
+        private ConcurrentDictionary<string, ICompletionData[]> _instanceCompletionItems = new ConcurrentDictionary<string, ICompletionData[]>();
 
-        public IList<ICompletionData> GetCompletionData(string token)
+        public IList<ICompletionData> GetCompletionData(string token, int line, int column)
         {
+            // Is this a static item?
             ICompletionData[] completionData;
-            if (_completionItems.TryGetValue(token, out completionData))
+            if (_staticCompletionItems.TryGetValue(token, out completionData))
             {
                 return Array.AsReadOnly(completionData);
+            }
+
+            // Nope... is it a local variable?
+            // Ugh, have to lock this...
+            string typeName = null;
+            lock (_localsLock)
+            {
+                if (_locals.Count > 0)
+                {
+                    var loc = new Loc(line, column);
+                    int index = _locals.Keys.BinarySearch(loc);
+                    if (index > 0)
+                    {
+                        --index;
+                    }
+
+                    Dictionary<string, string> variables = _locals.Values[index];
+                    variables.TryGetValue(token, out typeName);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(typeName))
+            {
+                if (_instanceCompletionItems.TryGetValue(typeName, out completionData))
+                {
+                    return Array.AsReadOnly(completionData);
+                }
+            }
+
+            // Nope! Is it a field???
+            // Lock again!
+            lock (_fieldsLock)
+            {
+                if (_fields.Count > 0)
+                {
+                    var loc = new Loc(line, column);
+                    int index = _fields.Keys.BinarySearch(loc);
+                    if (index > 0)
+                    {
+                        --index;
+                    }
+
+                    Dictionary<string, string> variables = _fields.Values[index];
+                    variables.TryGetValue(token, out typeName);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(typeName))
+            {
+                if (_instanceCompletionItems.TryGetValue(typeName, out completionData))
+                {
+                    return Array.AsReadOnly(completionData);
+                }
             }
 
             return EmptyData;
@@ -36,16 +116,14 @@ namespace SimpleDevelop
         {
             using (var reader = new StringReader(code))
             using (IParser parser = ParserFactory.CreateParser(SupportedLanguage.CSharp, reader))
-            using (ILexer lexer = parser.Lexer)
             {
                 try
                 {
                     parser.Parse();
 
-                    if (parser.Errors.Count > 0)
-                    {
-
-                    }
+                    // Very naive approach -- just re-parse the entire document.
+                    // ...will want to change this eventually.
+                    _locals = new SortedList<Loc, Dictionary<string, string>>();
 
                     ProcessNode(parser.CompilationUnit);
                 }
@@ -54,26 +132,21 @@ namespace SimpleDevelop
             }
         }
 
-        public void AddReference(string assemblyPath)
-        {
-            Action<string> loadReference = LoadReference;
-            loadReference.BeginInvoke(assemblyPath, loadReference.EndInvoke, null);
-        }
-
         private void ProcessNode(INode node)
         {
             string value = node.ToString();
+
+            var type = node as TypeDeclaration;
+            if (type != null)
+            {
+                ProcessType(type);
+            }
 
             var method = node as MethodDeclaration;
             if (method != null)
             {
                 ProcessMethod(method);
-            }
-
-            var local = node as LocalVariableDeclaration;
-            if (local != null)
-            {
-                ProcessLocals(local);
+                return;
             }
 
             foreach (INode child in node.Children)
@@ -82,15 +155,89 @@ namespace SimpleDevelop
             }
         }
 
-        private void ProcessMethod(MethodDeclaration method)
+        private void ProcessType(TypeDeclaration type)
         {
-            ProcessNode(method.Body);
+            var fields = type.Children.OfType<FieldDeclaration>();
+            if (fields.Any())
+            {
+                var variables = new Dictionary<string, string>();
+                foreach (FieldDeclaration field in fields)
+                {
+                    TypeReference typeRef = field.TypeReference;
+                    string typeKey = GetTypeKey(typeRef.Type, typeRef.GenericTypes.Count);
+
+                    foreach (VariableDeclaration variable in field.Fields)
+                    {
+                        variables[variable.Name] = typeKey;
+                    }
+                }
+
+                Location location = type.StartLocation;
+                var loc = new Loc(location.Line, location.Column);
+                lock (_fieldsLock)
+                {
+                    _fields[loc] = variables;
+                }
+            }
         }
 
-        private void ProcessLocals(LocalVariableDeclaration locals)
+        private void ProcessMethod(MethodDeclaration method)
         {
-            var method = locals.Parent as MethodDeclaration;
-            // TODO: finish implementing ProcessLocals
+            ProcessBlock(method.Body);
+        }
+
+        private void ProcessBlock(BlockStatement block)
+        {
+            var locals = block.Children.OfType<LocalVariableDeclaration>();
+            if (locals.Any())
+            {
+                var variables = new Dictionary<string, string>();
+                foreach (LocalVariableDeclaration local in locals)
+                {
+                    TypeReference typeRef = local.TypeReference;
+                    string typeKey = GetTypeKey(typeRef.Type, typeRef.GenericTypes.Count);
+
+                    foreach (VariableDeclaration variable in local.Variables)
+                    {
+                        if (typeKey == "var")
+                        {
+                            if (variable.Initializer is PrimitiveExpression)
+                            {
+                                typeKey = GetTypeKey(((PrimitiveExpression)variable.Initializer).Value.GetType());
+                            }
+                            else if (variable.Initializer is ObjectCreateExpression)
+                            {
+                                TypeReference variableTypeRef = ((ObjectCreateExpression)variable.Initializer).CreateType;
+                                typeKey = GetTypeKey(variableTypeRef.Type, variableTypeRef.GenericTypes.Count);
+                            }
+                        }
+
+                        if (typeKey != "var")
+                        {
+                            variables[variable.Name] = typeKey;
+                        }
+                    }
+                }
+
+                Location location = block.StartLocation;
+                var loc = new Loc(location.Line, location.Column);
+                lock (_localsLock)
+                {
+                    _locals[loc] = variables;
+                }
+            }
+
+            var nestedBlocks = block.Children.OfType<BlockStatement>();
+            foreach (BlockStatement nestedBlock in nestedBlocks)
+            {
+                ProcessBlock(nestedBlock);
+            }
+        }
+
+        public void AddReference(string assemblyPath)
+        {
+            Action<string> loadReference = LoadReference;
+            loadReference.BeginInvoke(assemblyPath, loadReference.EndInvoke, null);
         }
 
         private void LoadReference(string assemblyPath)
@@ -111,13 +258,20 @@ namespace SimpleDevelop
 
         private void LoadTypes(IEnumerable<Type> types)
         {
+            BindingFlags staticFlags = BindingFlags.Static | BindingFlags.Public;
+            LoadCompletionData(types, staticFlags, _staticCompletionItems);
+
+            BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.Public;
+            LoadCompletionData(types, instanceFlags, _instanceCompletionItems);
+        }
+
+        private void LoadCompletionData(IEnumerable<Type> types, BindingFlags flags, IDictionary<string, ICompletionData[]> completionItems)
+        {
             foreach (Type type in types)
             {
                 var completionData = new List<ICompletionData>();
 
-                BindingFlags bindingFlags = BindingFlags.Static | BindingFlags.Public;
-
-                Type[] nestedTypes = type.GetNestedTypes(bindingFlags);
+                Type[] nestedTypes = type.GetNestedTypes(flags);
                 if (nestedTypes.Length > 0)
                 {
                     var enums = from t in nestedTypes
@@ -163,10 +317,10 @@ namespace SimpleDevelop
                     LoadTypes(nestedTypes);
                 }
 
-                FieldInfo[] staticFields = type.GetFields(bindingFlags);
-                if (staticFields.Length > 0)
+                FieldInfo[] fields = type.GetFields(flags);
+                if (fields.Length > 0)
                 {
-                    var constants = from f in staticFields
+                    var constants = from f in fields
                                     where f.IsLiteral
                                     orderby f.Name
                                     select new ConstantCompletionData(f);
@@ -176,48 +330,48 @@ namespace SimpleDevelop
                         completionData.AddRange(constants);
                     }
 
-                    var fields = from f in staticFields
+                    var normalFields = from f in fields
                                  where !f.IsLiteral
                                  orderby f.Name
                                  select new CompletionData(f);
 
-                    if (fields.Any())
+                    if (normalFields.Any())
                     {
-                        completionData.AddRange(fields);
+                        completionData.AddRange(normalFields);
                     }
                 }
 
-                EventInfo[] staticEvents = type.GetEvents(bindingFlags);
-                if (staticEvents.Length > 0)
+                EventInfo[] events = type.GetEvents(flags);
+                if (events.Length > 0)
                 {
-                    var events = from e in staticEvents
-                                 orderby e.Name
-                                 select new CompletionData(e);
+                    var allEvents = from e in events
+                                    orderby e.Name
+                                    select new CompletionData(e);
 
-                    completionData.AddRange(events);
+                    completionData.AddRange(allEvents);
                 }
 
-                PropertyInfo[] staticProperties = type.GetProperties(bindingFlags);
-                if (staticProperties.Length > 0)
+                PropertyInfo[] properties = type.GetProperties(flags);
+                if (properties.Length > 0)
                 {
-                    var properties = from p in staticProperties
-                                     orderby p.Name
-                                     select new CompletionData(p);
+                    var allProperties = from p in properties
+                                        orderby p.Name
+                                        select new CompletionData(p);
 
-                    completionData.AddRange(properties);
+                    completionData.AddRange(allProperties);
                 }
 
-                MethodInfo[] staticMethods = type.GetMethods(bindingFlags);
-                if (staticMethods.Length > 0)
+                MethodInfo[] methods = type.GetMethods(flags);
+                if (methods.Length > 0)
                 {
-                    var methods = from m in staticMethods
-                                  where !m.IsSpecialName
-                                  orderby m.Name
-                                  select new CompletionData(m);
+                    var allMethods = from m in methods
+                                     where !m.IsSpecialName
+                                     orderby m.Name
+                                     select new CompletionData(m);
 
-                    if (methods.Any())
+                    if (allMethods.Any())
                     {
-                        completionData.AddRange(methods);
+                        completionData.AddRange(allMethods);
                     }
                 }
 
@@ -227,14 +381,20 @@ namespace SimpleDevelop
                                        group d by d.Text into g
                                        select g.First();
 
-                    _completionItems[GetTypeKey(type)] = distinctData.ToArray();
+                    completionItems[GetTypeKey(type)] = distinctData.ToArray();
                 }
             }
         }
 
         private static string GetTypeKey(Type type)
         {
-            string typeKey = type.FullName;
+            string typeName = type.FullName;
+            return GetTypeKey(typeName);
+        }
+
+        private static string GetTypeKey(string typeName, int genericTypeCount = 0)
+        {
+            string typeKey = typeName;
 
             int lastPeriodLocation = typeKey.LastIndexOf('.');
             if (lastPeriodLocation != -1)
@@ -245,6 +405,11 @@ namespace SimpleDevelop
             if (typeKey.Contains('+'))
             {
                 typeKey = typeKey.Replace('+', '.');
+            }
+
+            if (genericTypeCount > 0)
+            {
+                typeKey += ("`" + genericTypeCount);
             }
 
             return typeKey;
