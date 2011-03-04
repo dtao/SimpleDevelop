@@ -72,9 +72,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeCompletionHelper.cs" />
+    <Compile Include="CodeCompletion\ClassCompletionData.cs" />
     <Compile Include="CodeCompletion\ConstantCompletionData.cs" />
     <Compile Include="CodeCompletion\EnumCompletionData.cs" />
+    <Compile Include="CodeCompletion\EventCompletionData.cs" />
+    <Compile Include="CodeCompletion\FieldCompletionData.cs" />
     <Compile Include="CodeCompletion\InterfaceCompletionData.cs" />
+    <Compile Include="CodeCompletion\MethodCompletionData.cs" />
+    <Compile Include="CodeCompletion\PropertyCompletionData.cs" />
     <Compile Include="CodeCompletion\StructCompletionData.cs" />
     <Compile Include="Collections\ListBase.cs" />
     <Compile Include="CodeCompletion\CompletionData.cs" />

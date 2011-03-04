@@ -2,11 +2,11 @@
 
 namespace SimpleDevelop.CodeCompletion
 {
-    class ConstantCompletionData : CompletionData<FieldInfo>
+    class FieldCompletionData : CompletionData<FieldInfo>
     {
-        public ConstantCompletionData(FieldInfo fieldInfo) : base(fieldInfo)
+        public FieldCompletionData(FieldInfo fieldInfo) : base(fieldInfo)
         {
-            Image = ConstantImage;
+            Image = FieldImage;
         }
 
         public override object Description

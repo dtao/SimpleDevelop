@@ -2,9 +2,9 @@
 
 namespace SimpleDevelop.CodeCompletion
 {
-    class EnumCompletionData : CompletionData
+    class EnumCompletionData : CompletionData<MemberInfo>
     {
-        public EnumCompletionData(MemberInfo memberInfo) : base(memberInfo)
+        public EnumCompletionData(MemberInfo enumInfo) : base(enumInfo)
         {
             Image = EnumImage;
         }

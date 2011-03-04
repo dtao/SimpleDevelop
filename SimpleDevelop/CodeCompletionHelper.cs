@@ -301,7 +301,7 @@ namespace SimpleDevelop
                     var classes = from t in nestedTypes
                                   where t.IsClass
                                   orderby t.Name
-                                  select new CompletionData(t);
+                                  select new ClassCompletionData(t);
 
                     if (classes.Any())
                     {
@@ -311,7 +311,7 @@ namespace SimpleDevelop
                     var interfaces = from t in nestedTypes
                                      where t.IsInterface
                                      orderby t.Name
-                                     select new CompletionData(t);
+                                     select new InterfaceCompletionData(t);
 
                     if (interfaces.Any())
                     {
@@ -324,20 +324,34 @@ namespace SimpleDevelop
                 FieldInfo[] fields = type.GetFields(flags);
                 if (fields.Length > 0)
                 {
-                    var constants = from f in fields
-                                    where f.IsLiteral
-                                    orderby f.Name
-                                    select new ConstantCompletionData(f);
-
-                    if (constants.Any())
+                    if (!type.IsEnum)
                     {
-                        completionData.AddRange(constants);
+                        var constants = from f in fields
+                                        where f.IsLiteral
+                                        orderby f.Name
+                                        select new ConstantCompletionData(f);
+
+                        if (constants.Any())
+                        {
+                            completionData.AddRange(constants);
+                        }
+                    }
+                    else
+                    {
+                        var values = from f in fields
+                                     orderby f.Name
+                                     select new EnumCompletionData(f);
+
+                        if (values.Any())
+                        {
+                            completionData.AddRange(values);
+                        }
                     }
 
                     var normalFields = from f in fields
                                  where !f.IsLiteral
                                  orderby f.Name
-                                 select new CompletionData(f);
+                                 select new FieldCompletionData(f);
 
                     if (normalFields.Any())
                     {
@@ -350,7 +364,7 @@ namespace SimpleDevelop
                 {
                     var allEvents = from e in events
                                     orderby e.Name
-                                    select new CompletionData(e);
+                                    select new EventCompletionData(e);
 
                     completionData.AddRange(allEvents);
                 }
@@ -360,7 +374,7 @@ namespace SimpleDevelop
                 {
                     var allProperties = from p in properties
                                         orderby p.Name
-                                        select new CompletionData(p);
+                                        select new PropertyCompletionData(p);
 
                     completionData.AddRange(allProperties);
                 }
@@ -371,7 +385,7 @@ namespace SimpleDevelop
                     var allMethods = from m in methods
                                      where !m.IsSpecialName
                                      orderby m.Name
-                                     select new CompletionData(m);
+                                     select new MethodCompletionData(m);
 
                     if (allMethods.Any())
                     {

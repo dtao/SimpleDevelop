@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Windows;
@@ -14,28 +12,26 @@ using ICSharpCode.AvalonEdit.Editing;
 
 namespace SimpleDevelop.CodeCompletion
 {
-    class CompletionData : ICompletionData
+    abstract class CompletionData
     {
-        private static ConcurrentDictionary<MemberTypes, ImageSource> ImageSources;
+        protected static ImageSource EventImage;
+        protected static ImageSource FieldImage;
+        protected static ImageSource MethodImage;
+        protected static ImageSource NestedTypeImage;
+        protected static ImageSource PropertyImage;
         protected static ImageSource ConstantImage;
         protected static ImageSource EnumImage;
         protected static ImageSource InterfaceImage;
         protected static ImageSource StructImage;
 
-        static CompletionData()
-        {
-            ImageSources = new ConcurrentDictionary<MemberTypes, ImageSource>();
-        }
-
         // Hack! Needs to be called from the UI thread (oh well)...
         public static void Initialize()
         {
-            ImageSources[MemberTypes.Event] = BitmapToImageSource(Properties.Resources.Event);
-            ImageSources[MemberTypes.Field] = BitmapToImageSource(Properties.Resources.VariablePublic);
-            ImageSources[MemberTypes.Method] = BitmapToImageSource(Properties.Resources.MethodPublic);
-            ImageSources[MemberTypes.NestedType] = BitmapToImageSource(Properties.Resources.ClassPublic);
-            ImageSources[MemberTypes.Property] = BitmapToImageSource(Properties.Resources.PropertyPublic);
-
+            EventImage = BitmapToImageSource(Properties.Resources.Event);
+            FieldImage = BitmapToImageSource(Properties.Resources.VariablePublic);
+            MethodImage = BitmapToImageSource(Properties.Resources.MethodPublic);
+            NestedTypeImage = BitmapToImageSource(Properties.Resources.ClassPublic);
+            PropertyImage = BitmapToImageSource(Properties.Resources.PropertyPublic);
             ConstantImage = BitmapToImageSource(Properties.Resources.ConstantPublic);
             EnumImage = BitmapToImageSource(Properties.Resources.EnumPublic);
             InterfaceImage = BitmapToImageSource(Properties.Resources.Interface);
@@ -46,16 +42,21 @@ namespace SimpleDevelop.CodeCompletion
         {
             return Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(bitmap.Width, bitmap.Height));
         }
+    }
 
-        public CompletionData(MemberInfo memberInfo)
+    abstract class CompletionData<TMemberInfo> : CompletionData, ICompletionData where TMemberInfo : MemberInfo
+    {
+        protected readonly TMemberInfo _memberInfo;
+
+        public CompletionData(TMemberInfo memberInfo)
         {
-            Text = memberInfo.Name;
-
-            ImageSource imageSource;
-            Image = ImageSources.TryGetValue(memberInfo.MemberType, out imageSource) ? imageSource : null;
+            _memberInfo = memberInfo;
         }
 
-        public string Text { get; private set; }
+        public string Text
+        {
+            get { return _memberInfo.Name; }
+        }
 
         public ImageSource Image { get; protected set; }
 

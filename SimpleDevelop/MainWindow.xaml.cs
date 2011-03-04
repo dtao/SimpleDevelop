@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 
 using DevExpress.Xpf.Bars;
 using DevExpress.Xpf.Core;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.Win32;
 using SimpleDevelop.CodeCompletion;
 using SimpleDevelop.Core;
@@ -295,7 +292,7 @@ namespace SimpleDevelop
                 {
                     char c = _textEditor.Document.GetCharAt(previousSpaceLocation - 1);
 
-                    if (char.IsWhiteSpace(c) || c == '(')
+                    if (char.IsWhiteSpace(c) || c == '(' || c == ';')
                     {
                         break;
                     }
