@@ -92,6 +92,15 @@
     <Compile Include="ReferencesControl.xaml.cs">
       <DependentUpon>ReferencesControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ReferencesDataSet.cs">
+      <DependentUpon>ReferencesDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ReferencesDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReferencesDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="SimpleInputWindow.xaml.cs">
       <DependentUpon>SimpleInputWindow.xaml</DependentUpon>
     </Compile>
@@ -144,6 +153,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\Code\classPublic.gif" />
+    <None Include="ReferencesDataSet.xsc">
+      <DependentUpon>ReferencesDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="ReferencesDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ReferencesDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="ReferencesDataSet.xss">
+      <DependentUpon>ReferencesDataSet.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\Code\constantPublic.gif" />

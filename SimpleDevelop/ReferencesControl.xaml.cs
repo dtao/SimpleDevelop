@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.IO;
-
-using SimpleDevelop.Collections;
+using System.Threading;
 
 namespace SimpleDevelop
 {
@@ -15,15 +17,21 @@ namespace SimpleDevelop
     public partial class ReferencesControl : UserControl
     {
         private BackgroundWorker _referencesLoader;
-        private SortedObservableCollection<Reference> _references;
-        private SortedObservableCollection<Reference> _selectedReferences;
+        private BackgroundWorker _updateFilterWorker;
+        private bool _waitLongerToUpdateFilter;
+        private ReferencesDataSet.ReferencesDataTable _references;
+        private DataView _filteredReferences;
+        private DataView _selectedReferences;
 
         public ReferencesControl()
         {
             InitializeComponent();
 
-            _referencesListBox.ItemsSource = _references = new SortedObservableCollection<Reference>();
-            _selectedReferencesListBox.ItemsSource = _selectedReferences = new SortedObservableCollection<Reference>();
+            _references = ((ReferencesDataSet)((ObjectDataProvider)Resources["ReferencesDataSet"]).Data).References;
+
+            // Wow, this is the most annoying thing ever.
+            _filteredReferences = (DataView)_referencesListBox.ItemsSource;
+            _selectedReferences = (DataView)_selectedReferencesListBox.ItemsSource;
 
             _referencesLoader = new BackgroundWorker
             {
@@ -34,6 +42,37 @@ namespace SimpleDevelop
             _referencesLoader.ProgressChanged += ReferencesLoaderProgressChanged;
             _referencesLoader.RunWorkerCompleted += ReferencesLoaderRunWorkerCompleted;
             _referencesLoader.RunWorkerAsync();
+
+            _updateFilterWorker = new BackgroundWorker();
+
+            _updateFilterWorker.DoWork += new DoWorkEventHandler(UpdateFilterWorkerDoWork);
+            _updateFilterWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(UpdateFilterWorkerRunWorkerCompleted);
+        }
+
+        private void UpdateFilterWorkerDoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(500);
+        }
+
+        private void UpdateFilterWorkerRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (_waitLongerToUpdateFilter)
+            {
+                _updateFilterWorker.RunWorkerAsync();
+                _waitLongerToUpdateFilter = true;
+            }
+            else
+            {
+                string filter = _referenceFilterTextBox.Text;
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    _filteredReferences.RowFilter = string.Format("Name like '%{0}%'", filter);
+                }
+                else
+                {
+                    _filteredReferences.RowFilter = null;
+                }
+            }
         }
 
         public event EventHandler<ReferenceAddedEventArgs> ReferenceAdded;
@@ -42,10 +81,23 @@ namespace SimpleDevelop
         {
             get
             {
-                var selectedFilePaths = from s in _selectedReferences
-                                        select s.FilePath;
+                var selectedFilePaths = from rowView in _selectedReferences.Cast<DataRowView>()
+                                        let r = (ReferencesDataSet.ReferencesRow)rowView.Row
+                                        select r.Path;
 
                 return selectedFilePaths.ToList();
+            }
+        }
+
+        private void ReferenceFilterTextBoxTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!_updateFilterWorker.IsBusy)
+            {
+                _updateFilterWorker.RunWorkerAsync();
+            }
+            else
+            {
+                _waitLongerToUpdateFilter = true;
             }
         }
 
@@ -75,7 +127,7 @@ namespace SimpleDevelop
         private void ReferencesLoaderProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             string filePath = (string)e.UserState;
-            _references.Add(new Reference(filePath));
+            _references.AddReferencesRow(filePath, Path.GetFileName(filePath), false);
         }
 
         private void ReferencesLoaderRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -83,25 +135,33 @@ namespace SimpleDevelop
             var frameworkDirectory = e.Result as string;
             if (frameworkDirectory != null)
             {
-                AddReference(new Reference(Path.Combine(frameworkDirectory, "mscorlib.dll")));
+                string pathOfMsCorLib = Path.Combine(frameworkDirectory, "mscorlib.dll");
+                ReferencesDataSet.ReferencesRow row = _references.Where(r => r.Path == pathOfMsCorLib).SingleOrDefault();
+                if (row != null)
+                {
+                    AddReference(row);
+                }
             }
         }
 
         private void ReferencesListBoxMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var selectedReference = _referencesListBox.SelectedItem as Reference;
-            if (selectedReference != null)
+            var selectedRowView = _referencesListBox.SelectedItem as DataRowView;
+            if (selectedRowView == null)
             {
-                AddReference(selectedReference);
+                return;
             }
+
+            var selectedRow = (ReferencesDataSet.ReferencesRow)selectedRowView.Row;
+            AddReference(selectedRow);
         }
 
-        private void AddReference(Reference reference)
+        private void AddReference(ReferencesDataSet.ReferencesRow row)
         {
-            if (!_selectedReferences.Contains(reference))
+            if (row.Selected)
             {
-                _selectedReferences.Add(reference);
-                OnReferenceAdded(reference.FilePath);
+                row.Selected = true;
+                OnReferenceAdded(row.Path);
             }
         }
 
