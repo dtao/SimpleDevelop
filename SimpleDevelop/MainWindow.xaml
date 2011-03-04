@@ -16,6 +16,7 @@
         <BitmapImage x:Key="OpenImage" UriSource="Images\Icons\Open.png" />
         <BitmapImage x:Key="ExitImage" UriSource="Images\Icons\Exit.png" />
         <BitmapImage x:Key="BuildImage" UriSource="Images\Icons\Build.png" />
+        <BitmapImage x:Key="FontSizeImage" UriSource="Images\Icons\FontSize.png" />
     </Window.Resources>
     
     <dxb:BarManager>
@@ -26,7 +27,20 @@
             <dxb:BarButtonItem Content="Open..." Name="_openItem" ItemClick="OpenItemItemClick" Glyph="{StaticResource OpenImage}" />
             <dxb:BarButtonItem Content="Exit" Name="_exitItem" ItemClick="ExitItemItemClick" Glyph="{StaticResource ExitImage}" />
             <dxb:BarButtonItem Content="Build/Run" Name="_buildRunItem" ItemClick="BuildRunItemItemClick" Glyph="{StaticResource BuildImage}" />
-            
+            <dxb:BarButtonItem Content="Small" Name="_smallFontItem" ItemClick="SmallFontItemItemClick" />
+            <dxb:BarButtonItem Content="Medium" Name="_mediumFontItem" ItemClick="MediumFontItemItemClick" />
+            <dxb:BarButtonItem Content="Large" Name="_largeFontItem" ItemClick="LargeFontItemItemClick" />
+            <dxb:BarButtonItem Content="X-Large" Name="_xLargeFontItem" ItemClick="ExtraLargeFontItemItemClick" />
+
+            <dxb:BarSubItem Content="Font Size" Name="_fontSizeMenu" Glyph="{StaticResource FontSizeImage}">
+                <dxb:BarSubItem.ItemLinks>
+                    <dxb:BarButtonItemLink BarItemName="_smallFontItem" />
+                    <dxb:BarButtonItemLink BarItemName="_mediumFontItem" />
+                    <dxb:BarButtonItemLink BarItemName="_largeFontItem" />
+                    <dxb:BarButtonItemLink BarItemName="_xLargeFontItem" />
+                </dxb:BarSubItem.ItemLinks>
+            </dxb:BarSubItem>
+
             <dxb:BarSubItem Content="File" Name="_fileMenu">
                 <dxb:BarSubItem.ItemLinks>
                     <dxb:BarButtonItemLink BarItemName="_newItem" />
@@ -41,6 +55,11 @@
                     <dxb:BarButtonItemLink BarItemName="_buildRunItem" />
                 </dxb:BarSubItem.ItemLinks>
             </dxb:BarSubItem>
+            <dxb:BarSubItem Content="View" Name="_viewMenu">
+                <dxb:BarSubItem.ItemLinks>
+                    <dxb:BarSubItemLink BarItemName="_fontSizeMenu" />
+                </dxb:BarSubItem.ItemLinks>
+            </dxb:BarSubItem>
         </dxb:BarManager.Items>
         
         <dxb:BarManager.Bars>
@@ -48,6 +67,7 @@
                 <dxb:Bar.ItemLinks>
                     <dxb:BarSubItemLink BarItemName="_fileMenu" />
                     <dxb:BarSubItemLink BarItemName="_toolsMenu" />
+                    <dxb:BarSubItemLink BarItemName="_viewMenu" />
                 </dxb:Bar.ItemLinks>
             </dxb:Bar>
         </dxb:BarManager.Bars>
@@ -71,8 +91,8 @@
                 </dxd:LayoutGroup>
             </dxd:LayoutGroup>
             <dxd:DockLayoutManager.AutoHideGroups>
-                <dxd:AutoHideGroup Caption="References" DockType="Right">
-                    <dxd:LayoutPanel Name="_referencesPanel" Caption="References" Width="250" AllowClose="False" AllowFloat="False">
+                <dxd:AutoHideGroup Caption="References" DockType="Right" AutoHideSize="300, 300">
+                    <dxd:LayoutPanel Name="_referencesPanel" Caption="References" AllowClose="False" AllowFloat="False">
                         <local:ReferencesControl x:Name="_referencesControl" />
                     </dxd:LayoutPanel>
                 </dxd:AutoHideGroup>

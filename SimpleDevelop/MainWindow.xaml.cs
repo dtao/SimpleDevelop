@@ -124,27 +124,6 @@ namespace SimpleDevelop
             _buildRunItem.IsEnabled = true;
         }
 
-        private void BuildRunItemItemClick(object sender, ItemClickEventArgs e)
-        {
-            _buildRunItem.IsEnabled = false;
-            _outputTextBox.Clear();
-
-            var parameters = new CodeDomParameters();
-            parameters.MainClass = "Program";
-            foreach (string reference in _referencesControl.SelectedReferences)
-            {
-                parameters.References.Add(reference);
-            }
-
-            var input = new BuildWorkerInput
-            {
-                Code = _textEditor.Text,
-                Parameters = parameters
-            };
-
-            _buildWorker.RunWorkerAsync(input);
-        }
-
         private void NewItemItemClick(object sender, ItemClickEventArgs e)
         {
             string fileName;
@@ -209,6 +188,47 @@ namespace SimpleDevelop
         private void ExitItemItemClick(object sender, ItemClickEventArgs e)
         {
             Close();
+        }
+
+        private void BuildRunItemItemClick(object sender, ItemClickEventArgs e)
+        {
+            _buildRunItem.IsEnabled = false;
+            _outputTextBox.Clear();
+
+            var parameters = new CodeDomParameters();
+            parameters.MainClass = "Program";
+            foreach (string reference in _referencesControl.SelectedReferences)
+            {
+                parameters.References.Add(reference);
+            }
+
+            var input = new BuildWorkerInput
+            {
+                Code = _textEditor.Text,
+                Parameters = parameters
+            };
+
+            _buildWorker.RunWorkerAsync(input);
+        }
+
+        private void SmallFontItemItemClick(object sender, ItemClickEventArgs e)
+        {
+            _textEditor.TextArea.FontSize = 10.0;
+        }
+
+        private void MediumFontItemItemClick(object sender, ItemClickEventArgs e)
+        {
+            _textEditor.TextArea.FontSize = 12.0;
+        }
+
+        private void LargeFontItemItemClick(object sender, ItemClickEventArgs e)
+        {
+            _textEditor.TextArea.FontSize = 14.0;
+        }
+
+        private void ExtraLargeFontItemItemClick(object sender, ItemClickEventArgs e)
+        {
+            _textEditor.TextArea.FontSize = 16.0;
         }
 
         private void TextEditorTextAreaTextEntered(object sender, TextCompositionEventArgs e)

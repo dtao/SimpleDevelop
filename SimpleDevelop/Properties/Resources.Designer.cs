@@ -126,6 +126,13 @@ namespace SimpleDevelop.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap FontSize {
+            get {
+                object obj = ResourceManager.GetObject("FontSize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap Interface {
             get {
                 object obj = ResourceManager.GetObject("Interface", resourceCulture);

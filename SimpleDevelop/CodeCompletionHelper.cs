@@ -210,6 +210,10 @@ namespace SimpleDevelop
                                 TypeReference variableTypeRef = ((ObjectCreateExpression)variable.Initializer).CreateType;
                                 typeKey = GetTypeKey(variableTypeRef.Type, variableTypeRef.GenericTypes.Count);
                             }
+                            else if (variable.Initializer is InvocationExpression)
+                            {
+                                // OK, this case is too complicated to tackle.
+                            }
                         }
 
                         if (typeKey != "var")
