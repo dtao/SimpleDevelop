@@ -44,6 +44,7 @@ namespace SimpleDevelop
         private object _fieldsLock = new object();
         private SortedList<Loc, Dictionary<string, string>> _locals = new SortedList<Loc, Dictionary<string, string>>();
         private object _localsLock = new object();
+        private ConcurrentDictionary<string, ICompletionData[]> _namespaces = new ConcurrentDictionary<string, ICompletionData[]>();
         private ConcurrentDictionary<string, ICompletionData[]> _staticCompletionItems = new ConcurrentDictionary<string, ICompletionData[]>();
         private ConcurrentDictionary<string, ICompletionData[]> _instanceCompletionItems = new ConcurrentDictionary<string, ICompletionData[]>();
 
@@ -52,6 +53,12 @@ namespace SimpleDevelop
             // Is this a static item?
             ICompletionData[] completionData;
             if (_staticCompletionItems.TryGetValue(token, out completionData))
+            {
+                return Array.AsReadOnly(completionData);
+            }
+
+            // Nope... maybe a namespace?
+            if (_namespaces.TryGetValue(token, out completionData))
             {
                 return Array.AsReadOnly(completionData);
             }
@@ -262,11 +269,51 @@ namespace SimpleDevelop
 
         private void LoadTypes(IEnumerable<Type> types)
         {
+            LoadNamespaces(types.Select(t => t.Namespace));
+
             BindingFlags staticFlags = BindingFlags.Static | BindingFlags.Public;
             LoadCompletionData(types, staticFlags, _staticCompletionItems);
 
             BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.Public;
             LoadCompletionData(types, instanceFlags, _instanceCompletionItems);
+        }
+
+        private void LoadNamespaces(IEnumerable<string> namespaces)
+        {
+            var uniqueNamespaces = namespaces.Distinct().ToList();
+
+            if (uniqueNamespaces.Count > 0)
+            {
+                foreach (string ns in uniqueNamespaces)
+                {
+                    var childNamespaces = from child in uniqueNamespaces
+                                          where child != ns && child.StartsWith(ns)
+                                          orderby child
+                                          let data = new NamespaceCompletionData(GetChildNamespace(ns, child))
+                                          group data by data.Text into g
+                                          select g.First();
+
+                    var completionData = childNamespaces.ToArray();
+
+                    if (completionData.Length > 0)
+                    {
+                        _namespaces[ns] = completionData;
+                    }
+                }
+            }
+        }
+
+        private static string GetChildNamespace(string parent, string child)
+        {
+            int startIndex = parent.Length + 1;
+            int indexOfNextPeriod = child.IndexOf('.', startIndex);
+            if (indexOfNextPeriod == -1)
+            {
+                return child.Substring(startIndex);
+            }
+
+            int length = indexOfNextPeriod - startIndex;
+            return child.Substring(startIndex, length);
         }
 
         private void LoadCompletionData(IEnumerable<Type> types, BindingFlags flags, IDictionary<string, ICompletionData[]> completionItems)
@@ -349,9 +396,9 @@ namespace SimpleDevelop
                     }
 
                     var normalFields = from f in fields
-                                 where !f.IsLiteral
-                                 orderby f.Name
-                                 select new FieldCompletionData(f);
+                                       where !f.IsLiteral
+                                       orderby f.Name
+                                       select new FieldCompletionData(f);
 
                     if (normalFields.Any())
                     {

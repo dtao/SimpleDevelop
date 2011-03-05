@@ -102,6 +102,7 @@
     <Compile Include="CodeCompletion\FieldCompletionData.cs" />
     <Compile Include="CodeCompletion\InterfaceCompletionData.cs" />
     <Compile Include="CodeCompletion\MethodCompletionData.cs" />
+    <Compile Include="CodeCompletion\NamespaceCompletionData.cs" />
     <Compile Include="CodeCompletion\PropertyCompletionData.cs" />
     <Compile Include="CodeCompletion\StructCompletionData.cs" />
     <Compile Include="Collections\ListBase.cs" />

@@ -23,6 +23,7 @@ namespace SimpleDevelop.CodeCompletion
         protected static ImageSource EnumImage;
         protected static ImageSource InterfaceImage;
         protected static ImageSource StructImage;
+        protected static ImageSource NamespaceImage;
 
         // Hack! Needs to be called from the UI thread (oh well)...
         public static void Initialize()
@@ -36,6 +37,7 @@ namespace SimpleDevelop.CodeCompletion
             EnumImage = BitmapToImageSource(Properties.Resources.EnumPublic);
             InterfaceImage = BitmapToImageSource(Properties.Resources.Interface);
             StructImage = BitmapToImageSource(Properties.Resources.Struct);
+            NamespaceImage = BitmapToImageSource(Properties.Resources.Namespace);
         }
 
         protected static ImageSource BitmapToImageSource(Bitmap bitmap)
@@ -53,7 +55,7 @@ namespace SimpleDevelop.CodeCompletion
             _memberInfo = memberInfo;
         }
 
-        public string Text
+        public virtual string Text
         {
             get { return _memberInfo.Name; }
         }
