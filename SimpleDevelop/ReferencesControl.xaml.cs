@@ -61,7 +61,7 @@ namespace SimpleDevelop
                 string filter = _referencesFilterTextBox.Text;
                 if (!string.IsNullOrWhiteSpace(filter))
                 {
-                    _referencesListBox.ItemsSource = _references.Where(r => r.FileName.Contains(filter)).ToList();
+                    _referencesListBox.ItemsSource = _references.Where(r => r.FileName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).ToList();
                 }
                 else
                 {

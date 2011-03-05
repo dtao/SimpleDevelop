@@ -20,7 +20,7 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 
-                <TextBox Name="_referencesFilterTextBox" Grid.Row="0" Margin="5" TextChanged="ReferencesFilterTextBoxTextChanged" />
+                <TextBox Name="_referencesFilterTextBox" Grid.Row="0" Margin="0 5" TextChanged="ReferencesFilterTextBoxTextChanged" />
                 <ListBox Name="_referencesListBox" Grid.Row="1" MouseDoubleClick="ReferencesListBoxMouseDoubleClick" />
             </Grid>
         </GroupBox>
