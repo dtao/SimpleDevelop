@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>SimpleDevelop</title>
+    <link rel="stylesheet" type="text/css" href="/codemirror.css" />
+    <link rel="stylesheet" type="text/css" href="/theme/solarized.css" />
+    <script type="text/javascript" src="/codemirror-3.1.js"></script>
+    <script type="text/javascript" src="/mode/clike.js"></script>
+    <script type="text/javascript" src="/jquery-1.9.1.min.js"></script>
+
+    <style type="text/css">
+      .CodeMirror {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+      
+      .CodeMirror-scroll {
+        height: 100%;
+      }
+    </style>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        CodeMirror.fromTextArea(document.getElementById("editor"), {
+          lineNumbers: true,
+          mode: "text/x-csharp",
+          theme: "solarized dark"
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <textarea id="editor"></textarea>
+  </body>
+
+</html>

@@ -2,213 +2,41 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{9EB15F91-75A4-48EF-82B6-035E297839E3}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <ProjectGuid>{6EFA2122-8D69-4214-B3F3-C31928B60B4A}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SimpleDevelop</RootNamespace>
     <AssemblyName>SimpleDevelop</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>SimpleDevelop.App</StartupObject>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>SimpleDevelop.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <ConsolePause>False</ConsolePause>
+    <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
+    <OutputPath>bin\Release</OutputPath>
+    <Optimize>True</Optimize>
+    <DebugType>none</DebugType>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DevExpress.Data.v10.2, Version=10.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
-    <Reference Include="DevExpress.Xpf.Core.v10.2, Version=10.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
-    <Reference Include="DevExpress.Xpf.Docking.v10.2, Version=10.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
-    <Reference Include="DevExpress.Xpf.Layout.v10.2.Core, Version=10.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
-    <Reference Include="ICSharpCode.AvalonEdit, Version=4.0.0.5950, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
-      <HintPath>..\lib\AvalonEdit\ICSharpCode.AvalonEdit.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\lib\NRefactory\ICSharpCode.NRefactory.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CodeCompletionHelper.cs" />
-    <Compile Include="CodeCompletion\ClassCompletionData.cs" />
-    <Compile Include="CodeCompletion\ConstantCompletionData.cs" />
-    <Compile Include="CodeCompletion\EnumCompletionData.cs" />
-    <Compile Include="CodeCompletion\EventCompletionData.cs" />
-    <Compile Include="CodeCompletion\FieldCompletionData.cs" />
-    <Compile Include="CodeCompletion\InterfaceCompletionData.cs" />
-    <Compile Include="CodeCompletion\MethodCompletionData.cs" />
-    <Compile Include="CodeCompletion\NamespaceCompletionData.cs" />
-    <Compile Include="CodeCompletion\PropertyCompletionData.cs" />
-    <Compile Include="CodeCompletion\StructCompletionData.cs" />
-    <Compile Include="Collections\ListBase.cs" />
-    <Compile Include="CodeCompletion\CompletionData.cs" />
-    <Compile Include="Collections\ListExtensions.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Reference.cs" />
-    <Compile Include="ReferenceAddedEventArgs.cs" />
-    <Compile Include="ReferencesControl.xaml.cs">
-      <DependentUpon>ReferencesControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="SimpleInputWindow.xaml.cs">
-      <DependentUpon>SimpleInputWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Collections\SortedObservableCollection.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ReferencesControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SimpleInputWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\licenses.licx" />
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Resources\Default.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SimpleDevelop.Core\SimpleDevelop.Core.csproj">
-      <Project>{CF193E1E-EB62-46F5-B3A5-0BD82B688E69}</Project>
-      <Name>SimpleDevelop.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Icons\Save.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Icons\Build.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Icons\Exit.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Icons\New.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Icons\Open.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\classPublic.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\constantPublic.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\delegate.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\enumPublic.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\event.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\interface.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\methodPublic.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\namespace.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\propertyPublic.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\struct.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\Code\variablePublic.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Icons\FontSize.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SimpleDevelop.ico" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Application.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -218,4 +46,17 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="www\" />
+    <Folder Include="www\mode\" />
+    <Folder Include="www\theme\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="www\index.html" />
+    <None Include="www\codemirror.css" />
+    <None Include="www\codemirror.js" />
+    <None Include="www\jquery-1.9.1.min.js" />
+    <None Include="www\mode\clike.js" />
+    <None Include="www\theme\solarized.css" />
+  </ItemGroup>
 </Project>

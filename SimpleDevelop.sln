@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDevelop.Core", "Simpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDevelop.Mac", "SimpleDevelop.Mac\SimpleDevelop.Mac.csproj", "{C85238E0-A6A5-4E3B-AE32-E44C3ACBF453}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDevelop", "SimpleDevelop\SimpleDevelop.csproj", "{6EFA2122-8D69-4214-B3F3-C31928B60B4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -25,6 +27,38 @@ Global
 		AppStore|Any CPU = AppStore|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.AppStore|Any CPU.Build.0 = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.CD_ROM|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.CD_ROM|Any CPU.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.CD_ROM|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.CD_ROM|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.CD_ROM|x86.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.CD_ROM|x86.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Debug|x86.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.DVD-5|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.DVD-5|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.DVD-5|x86.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.DVD-5|x86.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Release|x86.ActiveCfg = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.Release|x86.Build.0 = Release|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.SingleImage|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.SingleImage|Any CPU.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.SingleImage|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.SingleImage|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.SingleImage|x86.ActiveCfg = Debug|Any CPU
+		{6EFA2122-8D69-4214-B3F3-C31928B60B4A}.SingleImage|x86.Build.0 = Debug|Any CPU
 		{C85238E0-A6A5-4E3B-AE32-E44C3ACBF453}.AppStore|Any CPU.ActiveCfg = AppStore|Any CPU
 		{C85238E0-A6A5-4E3B-AE32-E44C3ACBF453}.AppStore|Any CPU.Build.0 = AppStore|Any CPU
 		{C85238E0-A6A5-4E3B-AE32-E44C3ACBF453}.CD_ROM|Any CPU.ActiveCfg = Debug|Any CPU
