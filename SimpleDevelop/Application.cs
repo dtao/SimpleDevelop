@@ -1,53 +1,94 @@
 using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
+using System.Text;
+using System.Threading;
+using System.Web;
+
+using SimpleDevelop.Core;
 
 namespace SimpleDevelop
 {
     public class Application
     {
         static readonly string DocumentRoot;
-        
+
         HttpListener server;
-        
+        CSharpCodeExecutor compiler;
+        ManualResetEvent exitEvent;
+
         static Application()
         {
-            DocumentRoot = Environment.GetEnvironmentVariable("SIMPLE_DEVELOP_ROOT");
+            DocumentRoot = Environment.GetEnvironmentVariable("SIMPLE_DEVELOP_ROOT", EnvironmentVariableTarget.User);
         }
-        
+
         public Application()
         {
             this.server = new HttpListener();
-            this.server.Prefixes.Add("http://localhost:8888/");
+            this.server.Prefixes.Add("http://localhost:9999/");
+            this.compiler = new CSharpCodeExecutor();
+            this.exitEvent = new ManualResetEvent(false);
         }
         
         public void Start()
         {
             this.server.Start();
-            this.server.BeginGetContext(HandleRequestFromContext, null);
+            ListenForRequest();
         }
-        
-        void HandleRequestFromContext(IAsyncResult result)
+
+        public void Stop()
         {
-            HttpListenerContext context = this.server.EndGetContext(result);
-            HandleRequest(context.Request, context.Response);
+            this.server.Close();
+            this.exitEvent.Set();
         }
-        
+
+        public void WaitForExit()
+        {
+            this.exitEvent.WaitOne();
+        }
+
+        void ListenForRequest()
+        {
+            this.server.BeginGetContext(result => {
+                try
+                {
+                    HttpListenerContext context = this.server.EndGetContext(result);
+                    ListenForRequest();
+                    HandleRequest(context.Request, context.Response);
+                }
+                catch (ObjectDisposedException) { }
+            }, null);
+        }
+
         void HandleRequest(HttpListenerRequest request, HttpListenerResponse response)
         {
             if (request.HttpMethod == "POST")
             {
                 switch (request.Url.AbsolutePath)
                 {
-                    case "/files":
+                case "/files":
                     string body = ReadRequest(request);
                     File.WriteAllText(Path.Combine(DocumentRoot, "test.txt"), body);
+                    response.Close();
+                    return;
+                case "/compile":
+                    NameValueCollection parameters = ParseRequest(request);
+                    this.compiler.ExecuteWithCallback(parameters["code"], output =>
+                    {
+                        SendTextResponse(output, response);
+                    });
+                    return;
+                case "/exit":
+                    response.Close();
+                    Stop();
                     return;
                 }
             }
-            
-            string filename = Path.Combine(DocumentRoot, request.Url.AbsolutePath);
-            SendFile(filename, response);
+
+            string filename = GetFileName(request.Url.AbsolutePath);
+            string filepath = Path.Combine(DocumentRoot, filename);
+            SendFile(filepath, response);
         }
 
         string ReadRequest(HttpListenerRequest request)
@@ -57,22 +98,56 @@ namespace SimpleDevelop
                 return reader.ReadToEnd();
             }
         }
-        
-        void SendFile(string filename, HttpListenerResponse response)
+
+        NameValueCollection ParseRequest(HttpListenerRequest request)
         {
-            string extension = Path.GetExtension(filename);
-            
+            return HttpUtility.ParseQueryString(ReadRequest(request));
+        }
+
+        void SendFile(string filepath, HttpListenerResponse response)
+        {
+            string extension = Path.GetExtension(filepath);
             response.ContentType = GetContentType(extension);
-            using (var reader = new StreamReader(File.OpenRead(filename)))
-            using (var writer = new StreamWriter(response.OutputStream))
+
+            if (File.Exists(filepath))
             {
-                while (!reader.EndOfStream)
-                {
-                    writer.WriteLine(reader.ReadLine());
-                }
+                SendTextResponse(File.ReadAllText(filepath), response);
+            }
+            else
+            {
+                response.StatusCode = (int)HttpStatusCode.NotFound;
+                response.Close();
             }
         }
-        
+
+        void SendTextResponse(string text, HttpListenerResponse response)
+        {
+            try
+            {
+                byte[] data = Encoding.UTF8.GetBytes(text);
+                response.ContentLength64 = data.LongLength;
+
+                using (Stream outputStream = response.OutputStream)
+                {
+                    outputStream.Write(data, 0, data.Length);
+                }
+            }
+            finally
+            {
+                response.Close();
+            }
+        }
+
+        string GetFileName(string pathFromUrl)
+        {
+            if (pathFromUrl.StartsWith("/"))
+            {
+                return pathFromUrl.Substring(1);
+            }
+
+            return pathFromUrl;
+        }
+
         string GetContentType(string extension)
         {
             switch (extension)
@@ -84,4 +159,3 @@ namespace SimpleDevelop
         }
     }
 }
-

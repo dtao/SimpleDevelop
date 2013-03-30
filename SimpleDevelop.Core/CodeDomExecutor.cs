@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace SimpleDevelop.Core
 {
@@ -55,6 +56,21 @@ namespace SimpleDevelop.Core
             }
 
             Process.Start(results.PathToAssembly);
+        }
+
+        public void ExecuteWithCallback(string code, Action<string> callback)
+        {
+            var output = new StringBuilder();
+            var appendBuildOutput = new EventHandler<BuildOutputEventArgs>((sender, e) =>
+            {
+                output.AppendLine(e.Message);
+            });
+
+            this.BuildOutput += appendBuildOutput;
+            this.Execute(new string[] { code });
+            this.BuildOutput -= appendBuildOutput;
+
+            callback(output.ToString());
         }
 
         protected abstract CodeDomProvider CreateProvider();

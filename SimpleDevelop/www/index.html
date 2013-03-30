@@ -14,19 +14,84 @@
         bottom: 0;
         left: 0;
         right: 0;
-      }
-      
-      .CodeMirror-scroll {
         height: 100%;
+      }
+
+      .CodeMirror-scroll {
+        overflow: auto;
+      }
+
+      .results {
+        position: absolute;
+        top: 25%;
+        bottom: 25%;
+        left: 25%;
+        right: 25%;
+        padding: 25px;
+        background-color: #000;
+        color: #fff;
+        font-family: "Source Code Pro", Inconsolata, monospace;
+        font-size: 14px;
+        opacity: 0.5;
+        z-index: 10;
+      }
+
+      .results:empty {
+        display: none;
+      }
+
+      .toolbar {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        height: 60px;
+        background: #000;
+        opacity: 0.5;
+        z-index: 10;
+      }
+
+      .toolbar a {
+        display: inline-block;
+        float: right;
+        line-height: 60px;
+        color: #fff;
+        font-family: "Open Sans", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        padding: 0 1em;
+        text-decoration: none;
+      }
+
+      .toolbar a:hover {
+        background-color: #fff;
+        color: #888;
       }
     </style>
 
     <script type="text/javascript">
       $(document).ready(function() {
-        CodeMirror.fromTextArea(document.getElementById("editor"), {
+        var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
           lineNumbers: true,
           mode: "text/x-csharp",
           theme: "solarized dark"
+        });
+
+        $(".exit").click(function() {
+          $.ajax({ url: "/exit", type: "POST", complete: function() {
+            window.close();
+          }});
+        });
+
+        $(".compile").click(function() {
+          $.ajax({ url: "/compile", type: "POST", data: { code: editor.getValue() },
+            success: function(results) {
+              $(".results").html("<pre>" + results + "</pre>");
+            }
+          })
+        });
+
+        $(".results").click(function() {
+          $(this).empty();
         });
       });
     </script>
@@ -34,6 +99,11 @@
 
   <body>
     <textarea id="editor"></textarea>
+    <div class="results"></div>
+    <div class="toolbar">
+      <a class="exit" href="javascript:void(0);">Exit</a>
+      <a class="compile" href="javascript:void(0);">Compile</a>
+    </div>
   </body>
 
 </html>
