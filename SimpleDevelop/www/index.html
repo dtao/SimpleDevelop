@@ -10,6 +10,8 @@
 
     <style type="text/css">
       html, body {
+        height: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
       }
@@ -21,6 +23,8 @@
         left: 0;
         right: 0;
         height: 100%;
+
+        font-family: "Source Code Pro", Consolas, Inconsolata, monospace;
       }
 
       .CodeMirror-scroll {
@@ -36,18 +40,21 @@
         padding: 25px;
         background-color: #000;
         color: #fff;
-        font-family: "Source Code Pro", Inconsolata, monospace;
+        font-family: "Source Code Pro", Consolas, Inconsolata, monospace;
         font-size: 14px;
         opacity: 0.5;
         filter: alpha(opacity = 50);
         z-index: 10;
       }
 
-      /* every way I can think of to make this thing invisible */
       .results:empty {
         display: none;
-        height: 0;
-        width: 0;
+        visibility: hidden;
+      }
+
+      /* Ugh... wish this weren't necessary, but it appears to be for the WPF WebBrowser control. */
+      .results.empty {
+        display: none;
         visibility: hidden;
       }
 
@@ -97,13 +104,22 @@
         $(".compile").click(function() {
           $.ajax({ url: "/compile", type: "POST", data: { code: editor.getValue() },
             success: function(results) {
-              $(".results").html("<pre>" + results + "</pre>");
+              $(".results").removeClass("empty").html("<pre>" + results + "</pre>");
             }
           })
         });
 
         $(".results").click(function() {
-          $(this).empty();
+          $(this).empty().addClass("empty");
+        });
+
+        CodeMirror.on(window, "resize", function() {
+          var $window      = $(window),
+              $wrapper     = $(editor.getWrapperElement()),
+              windowHeight = $window.height(),
+              windowWidth  = $window.width();
+          $wrapper.height(windowHeight);
+          $wrapper.width(windowWidth);
         });
       });
     </script>
@@ -111,10 +127,10 @@
 
   <body>
     <textarea id="editor"></textarea>
-    <div class="results"></div>
+    <div class="results empty"></div>
     <div class="toolbar">
-      <a class="exit" href="javascript:void(0);">Exit</a>
-      <a class="compile" href="javascript:void(0);">Compile</a>
+      <a class="exit" href="#">Exit</a>
+      <a class="compile" href="#">Compile</a>
     </div>
   </body>
 
