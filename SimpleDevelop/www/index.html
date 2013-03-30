@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
   <head>
     <title>SimpleDevelop</title>
@@ -8,6 +9,11 @@
     <script type="text/javascript" src="/jquery-1.9.1.min.js"></script>
 
     <style type="text/css">
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+
       .CodeMirror {
         position: absolute;
         top: 0;
@@ -33,11 +39,16 @@
         font-family: "Source Code Pro", Inconsolata, monospace;
         font-size: 14px;
         opacity: 0.5;
+        filter: alpha(opacity = 50);
         z-index: 10;
       }
 
+      /* every way I can think of to make this thing invisible */
       .results:empty {
         display: none;
+        height: 0;
+        width: 0;
+        visibility: hidden;
       }
 
       .toolbar {
@@ -48,6 +59,7 @@
         height: 60px;
         background: #000;
         opacity: 0.5;
+        filter: alpha(opacity = 50);
         z-index: 10;
       }
 

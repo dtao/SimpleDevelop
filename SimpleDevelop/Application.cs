@@ -14,14 +14,16 @@ namespace SimpleDevelop
     {
         static readonly string DocumentRoot;
 
-        HttpListener server;
-        CSharpCodeExecutor compiler;
-        ManualResetEvent exitEvent;
-
         static Application()
         {
             DocumentRoot = Environment.GetEnvironmentVariable("SIMPLE_DEVELOP_ROOT", EnvironmentVariableTarget.User);
         }
+
+        HttpListener server;
+        CSharpCodeExecutor compiler;
+        ManualResetEvent exitEvent;
+
+        public event EventHandler Stopped;
 
         public Application()
         {
@@ -41,6 +43,12 @@ namespace SimpleDevelop
         {
             this.server.Close();
             this.exitEvent.Set();
+            
+            EventHandler stoppedHandler = this.Stopped;
+            if (stoppedHandler != null)
+            {
+                stoppedHandler(this, EventArgs.Empty);
+            }
         }
 
         public void WaitForExit()
