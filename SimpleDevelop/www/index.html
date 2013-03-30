@@ -1,4 +1,5 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html>
   <head>
     <title>SimpleDevelop</title>
@@ -20,42 +21,47 @@
         position: absolute;
         top: 0;
         bottom: 0;
-        left: 0;
-        right: 0;
         height: 100%;
+        width: 100%;
 
         font-family: "Source Code Pro", Consolas, Inconsolata, monospace;
+        font-size: 16px;
       }
 
       .CodeMirror-scroll {
         overflow: auto;
       }
 
+      .editing .CodeMirror {
+        left: 0;
+        right: 0;
+      }
+
       .results {
         position: absolute;
-        top: 25%;
-        bottom: 25%;
-        left: 25%;
-        right: 25%;
-        padding: 25px;
+        display: none;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 0;
+
         background-color: #000;
         color: #fff;
         font-family: "Source Code Pro", Consolas, Inconsolata, monospace;
         font-size: 14px;
-        opacity: 0.5;
-        filter: alpha(opacity = 50);
-        z-index: 10;
+        overflow: auto;
       }
 
-      .results:empty {
-        display: none;
-        visibility: hidden;
+      .viewing-results .CodeMirror {
+        left: 0;
+        right: 50%;
       }
 
-      /* Ugh... wish this weren't necessary, but it appears to be for the WPF WebBrowser control. */
-      .results.empty {
-        display: none;
-        visibility: hidden;
+      .viewing-results .results {
+        display: block;
+        left: 50%;
+        width: auto;
+        padding: 25px;
       }
 
       .toolbar {
@@ -64,10 +70,17 @@
         left: 20px;
         right: 20px;
         height: 60px;
-        background: #000;
         opacity: 0.5;
         filter: alpha(opacity = 50);
         z-index: 10;
+      }
+
+      .editing .toolbar {
+        background: #000;
+      }
+
+      .viewing-results .toolbar {
+        background-color: #444;
       }
 
       .toolbar a {
@@ -89,11 +102,13 @@
 
     <script type="text/javascript">
       $(document).ready(function() {
-        var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-          lineNumbers: true,
-          mode: "text/x-csharp",
-          theme: "solarized dark"
-        });
+        var $body    = $("body"),
+            $results = $(".results"),
+            editor   = CodeMirror.fromTextArea(document.getElementById("editor"), {
+              lineNumbers: true,
+              mode: "text/x-csharp",
+              theme: "solarized dark"
+            });
 
         $(".exit").click(function() {
           $.ajax({ url: "/exit", type: "POST", complete: function() {
@@ -104,29 +119,40 @@
         $(".compile").click(function() {
           $.ajax({ url: "/compile", type: "POST", data: { code: editor.getValue() },
             success: function(results) {
-              $(".results").removeClass("empty").html("<pre>" + results + "</pre>");
+              $body.attr("class", "viewing-results");
+              $results.html("<pre>" + results + "</pre>");
             }
           })
         });
 
-        $(".results").click(function() {
-          $(this).empty().addClass("empty");
+        $results.click(function() {
+          $body.attr("class", "editing");
+          $results.empty();
         });
 
-        CodeMirror.on(window, "resize", function() {
-          var $window      = $(window),
-              $wrapper     = $(editor.getWrapperElement()),
-              windowHeight = $window.height(),
-              windowWidth  = $window.width();
-          $wrapper.height(windowHeight);
-          $wrapper.width(windowWidth);
-        });
+        // CodeMirror.on(window, "resize", function() {
+        //   var $window      = $(window),
+        //       $wrapper     = $(editor.getWrapperElement()),
+        //       windowHeight = $window.height(),
+        //       windowWidth  = $window.width();
+        //   $wrapper.height(windowHeight);
+        //   $wrapper.width(windowWidth);
+        // });
       });
     </script>
   </head>
 
-  <body>
-    <textarea id="editor"></textarea>
+  <body class="editing">
+    <!-- TODO: see if there's a way to make this less hideous (yes it bothers me). -->
+    <textarea id="editor">using System;
+
+class Program
+{
+  public static void Main(string[] args)
+  {
+    Console.WriteLine("Hello, world!");
+  }
+}</textarea>
     <div class="results empty"></div>
     <div class="toolbar">
       <a class="exit" href="#">Exit</a>
