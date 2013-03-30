@@ -65,6 +65,7 @@ namespace SimpleDevelop
                     ListenForRequest();
                     HandleRequest(context.Request, context.Response);
                 }
+                catch (HttpListenerException) { }
                 catch (ObjectDisposedException) { }
             }, null);
         }
