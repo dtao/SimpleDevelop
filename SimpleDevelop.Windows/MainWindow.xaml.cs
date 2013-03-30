@@ -34,7 +34,7 @@ namespace SimpleDevelop.Windows
 
         void HandleApplicationStopped(object sender, EventArgs e)
         {
-            Close();
+            this.Dispatcher.BeginInvoke(new Action(Close));
         }
     }
 }
