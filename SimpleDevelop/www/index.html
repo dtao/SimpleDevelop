@@ -50,6 +50,7 @@
         font-family: "Source Code Pro", Consolas, Inconsolata, monospace;
         font-size: 14px;
         overflow: auto;
+        z-index: 10;
       }
 
       .viewing-results .CodeMirror {
@@ -73,10 +74,12 @@
         background-color: #000;
         color: #fff;
         opacity: 0.75;
+        overflow: auto;
         z-index: 10;
       }
 
-      .dialog:empty {
+      /* Why do the embedded web browsers suck? */
+      .dialog.empty {
         display: none;
       }
 
@@ -154,11 +157,19 @@
               theme: "solarized dark"
             });
 
+        function populateDialog(html) {
+          $dialog.removeClass("empty").html(html);
+        }
+
+        function clearDialog() {
+          $dialog.addClass("empty").empty();
+        }
+
         $(".open").click(function() {
           var directory = prompt("Enter a directory.");
           $.ajax({ url: "/open", type: "POST", dataType: "html", data: { directory: directory },
             success: function(html) {
-              $dialog.html(html);
+              populateDialog(html);
             }
           });
         });
@@ -184,7 +195,7 @@
         });
 
         $dialog.click(function() {
-          $dialog.empty();
+          clearDialog();
         });
 
         $dialog.on("click", ".file a", function() {
@@ -194,11 +205,14 @@
               editor.setValue(text);
             },
             complete: function() {
-              $dialog.empty();
+              clearDialog();
             }
           });
           return false;
         });
+
+        // This shouldn't be necessary.
+        clearDialog();
       });
     </script>
   </head>
@@ -207,7 +221,7 @@
     <!-- TODO: see if there's a way to make this less hideous (yes it bothers me). -->
     <textarea id="editor">{{ExampleCode}}</textarea>
     <div class="results"></div>
-    <div class="dialog"></div>
+    <div class="dialog" class="empty"></div>
     <div class="toolbar">
       <a class="exit" href="#">Exit</a>
       <a class="compile" href="#">Compile</a>
