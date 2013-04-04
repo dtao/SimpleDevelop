@@ -46,20 +46,23 @@ namespace SimpleDevelop.Core
             this.BuildOutput += appendBuildOutput;
             CompilerResults results = Compile(new string[] { code });
             this.BuildOutput -= appendBuildOutput;
-
-            var processStartInfo = new ProcessStartInfo
+   
+            if (results.Errors.Count == 0)
             {
-                CreateNoWindow = true,
-                FileName = results.PathToAssembly,
-                RedirectStandardOutput = true,
-                UseShellExecute = false
-            };
-
-            using (Process p = Process.Start(processStartInfo))
-            {
-                while (!p.StandardOutput.EndOfStream)
+                var processStartInfo = new ProcessStartInfo
                 {
-                    output.AppendLine(p.StandardOutput.ReadLine());
+                    CreateNoWindow = true,
+                    FileName = results.PathToAssembly,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                };
+    
+                using (Process p = Process.Start(processStartInfo))
+                {
+                    while (!p.StandardOutput.EndOfStream)
+                    {
+                        output.AppendLine(p.StandardOutput.ReadLine());
+                    }
                 }
             }
 
