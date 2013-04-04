@@ -83,10 +83,8 @@ namespace SimpleDevelop
                     return;
                 case "/compile":
                     NameValueCollection parameters = ParseRequest(request);
-                    this.compiler.ExecuteWithCallback(parameters["code"], output =>
-                    {
-                        SendTextResponse(output, response);
-                    });
+                    string output = this.compiler.CompileAndRun(parameters["code"]);
+                    SendTextResponse(output, response);
                     return;
                 case "/exit":
                     response.Close();
