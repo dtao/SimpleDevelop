@@ -13,7 +13,8 @@ namespace SimpleDevelop
 
         static HttpListenerContextExtensions()
         {
-            DocumentRoot = Environment.GetEnvironmentVariable("SIMPLE_DEVELOP_ROOT");
+            // This will work as long as all static assets are marked 'Copy to output directory'.
+            DocumentRoot = Path.Combine(Path.GetDirectoryName(typeof(SimpleDevelop.Application).Assembly.Location), "www");
         }
 
         public static void SendTextResponse(this HttpListenerContext context, string text, object data = null)

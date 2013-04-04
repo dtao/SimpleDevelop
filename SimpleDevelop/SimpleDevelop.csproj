@@ -61,12 +61,27 @@
     <Folder Include="ext\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="www\index.html" />
-    <None Include="www\codemirror.css" />
-    <None Include="www\jquery-1.9.1.min.js" />
-    <None Include="www\mode\clike.js" />
-    <None Include="www\theme\solarized.css" />
-    <None Include="www\codemirror-3.1.js" />
+    <None Include="www\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\codemirror.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\jquery-1.9.1.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\mode\clike.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\theme\solarized.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\codemirror-3.1.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\files.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleDevelop.Core\SimpleDevelop.Core.csproj">
