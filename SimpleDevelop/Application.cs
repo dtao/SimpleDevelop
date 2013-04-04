@@ -12,13 +12,6 @@ namespace SimpleDevelop
 {
     public class Application
     {
-        static readonly string DocumentRoot;
-
-        static Application()
-        {
-            DocumentRoot = Environment.GetEnvironmentVariable("SIMPLE_DEVELOP_ROOT", EnvironmentVariableTarget.User);
-        }
-
         HttpListener server;
         CSharpCodeExecutor compiler;
         ManualResetEvent exitEvent;
@@ -63,87 +56,57 @@ namespace SimpleDevelop
                 {
                     HttpListenerContext context = this.server.EndGetContext(result);
                     ListenForRequest();
-                    HandleRequest(context.Request, context.Response);
+                    HandleRequest(context);
                 }
                 catch (HttpListenerException) { }
                 catch (ObjectDisposedException) { }
             }, null);
         }
 
-        void HandleRequest(HttpListenerRequest request, HttpListenerResponse response)
+        void HandleRequest(HttpListenerContext context)
         {
-            if (request.HttpMethod == "POST")
-            {
-                switch (request.Url.AbsolutePath)
-                {
-                case "/files":
-                    string body = ReadRequest(request);
-                    File.WriteAllText(Path.Combine(DocumentRoot, "test.txt"), body);
-                    response.Close();
-                    return;
-                case "/compile":
-                    NameValueCollection parameters = ParseRequest(request);
-                    this.compiler.ExecuteWithCallback(parameters["code"], output =>
-                    {
-                        SendTextResponse(output, response);
-                    });
-                    return;
-                case "/exit":
-                    response.Close();
-                    Stop();
-                    return;
-                }
-            }
+            HttpListenerRequest request = context.Request;
+            NameValueCollection parameters = ParseRequest(request);
 
-            string filename = GetFileName(request.Url.AbsolutePath);
-            string filepath = Path.Combine(DocumentRoot, filename);
-            SendFile(filepath, response);
+            switch (request.HttpMethod + ":" + request.Url.AbsolutePath)
+            {
+            case "POST:/compile":
+                this.compiler.ExecuteWithCallback(parameters["code"], output =>
+                {
+                    context.SendTextResponse(output, null);
+                });
+                break;
+            case "POST:/exit":
+                Stop();
+                break;
+            default:
+                context.SendFile(GetFileName(context.Request.Url.AbsolutePath));
+                break;
+            }
         }
 
-        string ReadRequest(HttpListenerRequest request)
+        string ReadRequestBody(HttpListenerRequest request)
         {
+            var stringBuilder = new StringBuilder();
             using (var reader = new StreamReader(request.InputStream))
             {
-                return reader.ReadToEnd();
+                while (!reader.EndOfStream)
+                {
+                    stringBuilder.AppendLine(reader.ReadLine());
+                }
             }
+            return stringBuilder.ToString();
         }
 
         NameValueCollection ParseRequest(HttpListenerRequest request)
         {
-            return HttpUtility.ParseQueryString(ReadRequest(request));
-        }
-
-        void SendFile(string filepath, HttpListenerResponse response)
-        {
-            string extension = Path.GetExtension(filepath);
-            response.ContentType = GetContentType(extension);
-
-            if (File.Exists(filepath))
+            if (request.HttpMethod == "GET")
             {
-                SendTextResponse(File.ReadAllText(filepath), response);
+                return request.QueryString;
             }
             else
             {
-                response.StatusCode = (int)HttpStatusCode.NotFound;
-                response.Close();
-            }
-        }
-
-        void SendTextResponse(string text, HttpListenerResponse response)
-        {
-            try
-            {
-                byte[] data = Encoding.UTF8.GetBytes(text);
-                response.ContentLength64 = data.LongLength;
-
-                using (Stream outputStream = response.OutputStream)
-                {
-                    outputStream.Write(data, 0, data.Length);
-                }
-            }
-            finally
-            {
-                response.Close();
+                return HttpUtility.ParseQueryString(ReadRequestBody(request));
             }
         }
 
@@ -151,20 +114,10 @@ namespace SimpleDevelop
         {
             if (pathFromUrl.StartsWith("/"))
             {
-                return pathFromUrl.Substring(1);
+                return pathFromUrl.TrimStart('/');
             }
 
             return pathFromUrl;
-        }
-
-        string GetContentType(string extension)
-        {
-            switch (extension)
-            {
-                case ".css": return "text/css";
-                case ".js": return "text/javascript";
-                default: return "text/html";
-            }
         }
     }
 }

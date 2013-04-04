@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Application.cs" />
+    <Compile Include="ext\HttpListenerContextExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -51,6 +52,7 @@
     <Folder Include="www\" />
     <Folder Include="www\mode\" />
     <Folder Include="www\theme\" />
+    <Folder Include="ext\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="www\index.html" />
