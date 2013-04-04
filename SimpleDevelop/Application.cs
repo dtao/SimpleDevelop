@@ -70,6 +70,13 @@ namespace SimpleDevelop
 
             switch (request.HttpMethod + ":" + request.Url.AbsolutePath)
             {
+            case "POST:/open":
+                FileInfo[] files = new DirectoryInfo(parameters["directory"].Trim()).GetFiles();
+                context.SendFile("files.html", new { Files = files });
+                break;
+            case "GET:/open":
+                context.SendFile(parameters["filepath"]);
+                break;
             case "POST:/compile":
                 this.compiler.ExecuteWithCallback(parameters["code"], output =>
                 {

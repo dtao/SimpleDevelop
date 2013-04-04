@@ -64,6 +64,22 @@
         padding: 25px;
       }
 
+      .dialog {
+        position: absolute;
+        top: 25%;
+        bottom: 25%;
+        left: 25%;
+        right: 25%;
+        background-color: #000;
+        color: #fff;
+        opacity: 0.75;
+        z-index: 10;
+      }
+
+      .dialog:empty {
+        display: none;
+      }
+
       .toolbar {
         position: absolute;
         bottom: 20px;
@@ -98,22 +114,53 @@
         background-color: #fff;
         color: #888;
       }
+
+      /* Open file dialog */
+      ul.file-list {
+        list-style: none;
+        padding-left: 0;
+        width: 100%;
+      }
+
+      ul.file-list li {
+        height: 30px;
+        font-family: "Open Sans", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        padding: 0 1em;
+      }
+
+      ul.file-list li a {
+        color: #fff;
+        line-height: 30px;
+      }
+
+      ul.file-list li:hover {
+        background-color: #fff;
+      }
+
+      ul.file-list li:hover a {
+        color: #888;
+      }
     </style>
 
     <script type="text/javascript">
       $(document).ready(function() {
         var $body    = $("body"),
             $results = $(".results"),
+            $dialog  = $(".dialog"),
             editor   = CodeMirror.fromTextArea(document.getElementById("editor"), {
               lineNumbers: true,
               mode: "text/x-csharp",
               theme: "solarized dark"
             });
 
-        $(".exit").click(function() {
-          $.ajax({ url: "/exit", type: "POST", complete: function() {
-            window.close();
-          }});
+        $(".open").click(function() {
+          var directory = prompt("Enter a directory.");
+          $.ajax({ url: "/open", type: "POST", dataType: "html", data: { directory: directory },
+            success: function(html) {
+              $dialog.html(html);
+            }
+          });
         });
 
         $(".compile").click(function() {
@@ -125,38 +172,46 @@
           })
         });
 
+        $(".exit").click(function() {
+          $.ajax({ url: "/exit", type: "POST", complete: function() {
+            window.close();
+          }});
+        });
+
         $results.click(function() {
           $body.attr("class", "editing");
           $results.empty();
         });
 
-        // CodeMirror.on(window, "resize", function() {
-        //   var $window      = $(window),
-        //       $wrapper     = $(editor.getWrapperElement()),
-        //       windowHeight = $window.height(),
-        //       windowWidth  = $window.width();
-        //   $wrapper.height(windowHeight);
-        //   $wrapper.width(windowWidth);
-        // });
+        $dialog.click(function() {
+          $dialog.empty();
+        });
+
+        $dialog.on("click", ".file a", function() {
+          var filepath = $(this).attr("href");
+          $.ajax({ url: "/open", type: "GET", data: { filepath: filepath },
+            success: function(text) {
+              editor.setValue(text);
+            },
+            complete: function() {
+              $dialog.empty();
+            }
+          });
+          return false;
+        });
       });
     </script>
   </head>
 
   <body class="editing">
     <!-- TODO: see if there's a way to make this less hideous (yes it bothers me). -->
-    <textarea id="editor">using System;
-
-class Program
-{
-  public static void Main(string[] args)
-  {
-    Console.WriteLine("Hello, world!");
-  }
-}</textarea>
-    <div class="results empty"></div>
+    <textarea id="editor">{{ExampleCode}}</textarea>
+    <div class="results"></div>
+    <div class="dialog"></div>
     <div class="toolbar">
       <a class="exit" href="#">Exit</a>
       <a class="compile" href="#">Compile</a>
+      <a class="open" href="#">Open</a>
     </div>
   </body>
 
