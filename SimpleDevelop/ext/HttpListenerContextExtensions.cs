@@ -35,11 +35,16 @@ namespace SimpleDevelop
             }
         }
 
+        public static void SendAsset(this HttpListenerContext context, string filename, object data = null)
+        {
+            string extension = Path.GetExtension(filename);
+            context.Response.ContentType = GetContentType(extension);
+            context.SendFile(filename, data);
+        }
+
         public static void SendFile(this HttpListenerContext context, string filename, object data = null)
         {
             string filepath = filename.StartsWith("/") ? filename : Path.Combine(DocumentRoot, filename);
-            string extension = Path.GetExtension(filepath);
-            context.Response.ContentType = GetContentType(extension);
 
             if (File.Exists(filepath))
             {

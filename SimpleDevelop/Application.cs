@@ -87,7 +87,7 @@ namespace SimpleDevelop
                 Stop();
                 break;
             default:
-                context.SendFile(GetFileName(context.Request.Url.AbsolutePath));
+                context.SendAsset(GetFileName(context.Request.Url.AbsolutePath));
                 break;
             }
         }
