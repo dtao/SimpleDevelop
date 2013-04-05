@@ -202,6 +202,16 @@
           return mapped;
         }
 
+        function simpleSelect(array, prefix) {
+          var selected = [];
+          for (var i = 0; i < array.length; ++i) {
+            if (prefix === "." || array[i].indexOf(prefix) === 0) {
+              selected.push(array[i]);
+            }
+          }
+          return selected;
+        }
+
         $(".open").click(function() {
           var directory = prompt("Enter a directory.");
           sendRequest("/open", { directory: directory }, {
@@ -267,21 +277,31 @@
         }, 2000);
 
         editor.addKeyMap({
-          ".": function(e) {
-            var cursor = e.getCursor();
-            var token  = e.getTokenAt(cursor);
+          ".": function() {
+            var cursor = editor.getCursor();
+            var token  = editor.getTokenAt(cursor);
             var json   = JSON.stringify({ token: token.string, line: cursor.line, col: cursor.ch });
-            sendRequest("/complete", { data: json }, {
-              callback: function(data) {
-                CodeMirror.showHint(editor, function(e) {
-                  return {
-                    list: simpleMap(data.Items, "Text"),
-                    from: new CodeMirror.Pos(cursor.line, cursor.ch + 1),
-                    to: new CodeMirror.Pos(cursor.line, cursor.ch + 1)
-                  };
-                });
-              }
-            });
+
+            // Why in the world this is necessary, I don't know.
+            setTimeout(function() {
+              sendRequest("/complete", { data: json }, {
+                callback: function(data) {
+                  var list     = simpleMap(data.Items, "Text");
+
+                  CodeMirror.showHint(editor, function() {
+                    var position = editor.getCursor();
+                    var partial  = editor.getTokenAt(position);
+                    var matches  = simpleSelect(list, partial.string);
+
+                    return {
+                      list: matches,
+                      from: new CodeMirror.Pos(position.line, partial.start),
+                      to: position
+                    };
+                  });
+                }
+              });
+            }, 0);
 
             // Is this really necessary? Feels wrong...
             throw CodeMirror.Pass;
