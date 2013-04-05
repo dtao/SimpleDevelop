@@ -153,6 +153,7 @@
             $results = $(".results"),
             $dialog  = $(".dialog"),
             editor   = CodeMirror.fromTextArea(document.getElementById("editor"), {
+              indentUnit: 4,
               lineNumbers: true,
               mode: "text/x-csharp",
               theme: "solarized dark"
@@ -190,6 +191,15 @@
               displayError("An unexpected error occurred.");
             }
           }, options));
+        }
+
+        // I don't care.
+        function simpleMap(array, propertyName) {
+          var mapped = [];
+          for (var i = 0; i < array.length; ++i) {
+            mapped.push(array[i][propertyName]);
+          }
+          return mapped;
         }
 
         $(".open").click(function() {
@@ -248,7 +258,9 @@
         // Just periodically throw everything over the wall. Let's see how this goes.
         setInterval(function() {
           if (changesToParse) {
-            sendRequest("/parse", { code: editor.getValue() });
+            sendRequest("/parse", { code: editor.getValue() }, {
+              dataType: "text"
+            });
             changesToParse = false;
           }
         }, 2000);
@@ -256,19 +268,22 @@
         editor.addKeyMap({
           ".": function(e) {
             var cursor = e.getCursor();
-            var token  = e.getTokenAt({ line: cursor.line, ch: cursor.ch - 1 });
+            var token  = e.getTokenAt(new CodeMirror.Pos(cursor.line, cursor.ch - 1));
             var json   = JSON.stringify({ token: token.string, line: cursor.line, col: cursor.ch });
             sendRequest("/complete", { data: json }, {
-              callback: function(items) {
+              callback: function(data) {
                 CodeMirror.showHint(editor, function(e) {
                   return {
-                    list: $.map(items, function() { return this.Text }),
-                    from: token.end,
-                    to: token.end
+                    list: simpleMap(data.Items, "Text"),
+                    from: new CodeMirror.Pos(cursor.line, cursor.ch + 1),
+                    to: new CodeMirror.Pos(cursor.line, cursor.ch + 1)
                   };
                 });
               }
             });
+
+            // Is this really necessary? Feels wrong...
+            throw CodeMirror.Pass;
           }
         });
 
