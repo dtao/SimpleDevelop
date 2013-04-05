@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-
 <html>
   <head>
     <title>SimpleDevelop</title>
-    <link rel="stylesheet" type="text/css" href="/codemirror.css" />
-    <link rel="stylesheet" type="text/css" href="/theme/solarized.css" />
-    <script type="text/javascript" src="/codemirror-3.1.js"></script>
-    <script type="text/javascript" src="/mode/clike.js"></script>
-    <script type="text/javascript" src="/jquery-1.9.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/codemirror.css" />
+    <link rel="stylesheet" type="text/css" href="/css/show-hint.css" />
+    <link rel="stylesheet" type="text/css" href="/css/theme/solarized.css" />
+    <script type="text/javascript" src="/js/codemirror-3.1.js"></script>
+    <script type="text/javascript" src="/js/show-hint.js"></script>
+    <script type="text/javascript" src="/js/mode/clike.js"></script>
+    <script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
 
     <style type="text/css">
       html, body {
@@ -155,7 +156,8 @@
               lineNumbers: true,
               mode: "text/x-csharp",
               theme: "solarized dark"
-            });
+            }),
+            changesToParse = false;
 
         function populateDialog(html) {
           $dialog.removeClass("empty").html(html);
@@ -165,28 +167,54 @@
           $dialog.addClass("empty").empty();
         }
 
+        function displayError(error) {
+          $dialog.removeClass("empty").html("<pre>" + error + "</pre>");
+        }
+
+        function sendRequest(route, data, options) {
+          options = options || {};
+
+          $.ajax($.extend({
+            url: route,
+            type: "POST",
+            dataType: "json",
+            data: data,
+            success: function(data) {
+              if (data.Error) {
+                displayError(data.Error);
+              } else if (options.callback) {
+                options.callback(data);
+              }
+            },
+            error: function() {
+              displayError("An unexpected error occurred.");
+            }
+          }, options));
+        }
+
         $(".open").click(function() {
           var directory = prompt("Enter a directory.");
-          $.ajax({ url: "/open", type: "POST", dataType: "html", data: { directory: directory },
-            success: function(html) {
+          sendRequest("/open", { directory: directory }, {
+            dataType: "html",
+            callback: function(html) {
               populateDialog(html);
             }
           });
         });
 
         $(".compile").click(function() {
-          $.ajax({ url: "/compile", type: "POST", data: { code: editor.getValue() },
-            success: function(results) {
+          sendRequest("/compile", { code: editor.getValue() }, {
+            callback: function(results) {
               $body.attr("class", "viewing-results");
               $results.html("<pre>" + results + "</pre>");
             }
-          })
+          });
         });
 
         $(".exit").click(function() {
-          $.ajax({ url: "/exit", type: "POST", complete: function() {
-            window.close();
-          }});
+          sendRequest("/exit", {}, {
+            callback: window.close
+          });
         });
 
         $results.click(function() {
@@ -200,19 +228,52 @@
 
         $dialog.on("click", ".file a", function() {
           var filepath = $(this).attr("href");
-          $.ajax({ url: "/open", type: "GET", data: { filepath: filepath },
-            success: function(text) {
+          sendRequest("/open", { filepath: filepath }, {
+            type: "GET",
+            callback: function(text) {
               editor.setValue(text);
-            },
-            complete: function() {
               clearDialog();
             }
           });
           return false;
         });
 
+        editor.on("change", function() {
+          changesToParse = true;
+        });
+
         // This shouldn't be necessary.
         clearDialog();
+
+        // Just periodically throw everything over the wall. Let's see how this goes.
+        setInterval(function() {
+          if (changesToParse) {
+            sendRequest("/parse", { code: editor.getValue() });
+            changesToParse = false;
+          }
+        }, 2000);
+
+        editor.addKeyMap({
+          ".": function(e) {
+            var cursor = e.getCursor();
+            var token  = e.getTokenAt({ line: cursor.line, ch: cursor.ch - 1 });
+            var json   = JSON.stringify({ token: token.string, line: cursor.line, col: cursor.ch });
+            sendRequest("/complete", { data: json }, {
+              callback: function(items) {
+                CodeMirror.showHint(editor, function(e) {
+                  return {
+                    list: $.map(items, function() { return this.Text }),
+                    from: token.end,
+                    to: token.end
+                  };
+                });
+              }
+            });
+          }
+        });
+
+        // Just for debugging, for me.
+        window.CMEditor = editor;
       });
     </script>
   </head>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
+using Newtonsoft.Json;
 using Nustache.Core;
 
 namespace SimpleDevelop
@@ -35,6 +36,13 @@ namespace SimpleDevelop
             }
         }
 
+        public static void SendJsonResponse(this HttpListenerContext context, object data)
+        {
+            context.Response.ContentType = "text/json";
+            string json = JsonConvert.SerializeObject(data);
+            context.SendTextResponse(json);
+        }
+
         public static void SendAsset(this HttpListenerContext context, string filename, object data = null)
         {
             string extension = Path.GetExtension(filename);
@@ -44,7 +52,7 @@ namespace SimpleDevelop
 
         public static void SendFile(this HttpListenerContext context, string filename, object data = null)
         {
-            string filepath = filename.StartsWith("/") ? filename : Path.Combine(DocumentRoot, filename);
+            string filepath = GetFilePath(filename);
 
             if (File.Exists(filepath))
             {
@@ -55,6 +63,23 @@ namespace SimpleDevelop
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 context.Response.Close();
             }
+        }
+
+        public static void Ok(this HttpListenerContext context)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.Close();
+        }
+
+        static string GetFilePath(string filename)
+        {
+            return Path.IsPathRooted(filename) ? filename : TranslatePathToSystemFormat(filename);
+        }
+
+        static string TranslatePathToSystemFormat(string filename)
+        {
+            string[] parts = filename.Split('/');
+            return Path.Combine(DocumentRoot, Path.Combine(parts));
         }
 
         static object GetDataForFile(string filepath)

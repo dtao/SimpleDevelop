@@ -14,22 +14,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <DebugType>full</DebugType>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <ConsolePause>false</ConsolePause>
-    <Optimize>false</Optimize>
+    <ConsolePause>False</ConsolePause>
+    <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release</OutputPath>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <DebugType>none</DebugType>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
-    <ConsolePause>false</ConsolePause>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -38,8 +38,12 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Nustache.Core">
-      <HintPath>..\lib\Nustache.Core.dll</HintPath>
+      <HintPath>..\lib\Nustache\Nustache.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\lib\Json\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -56,30 +60,37 @@
   -->
   <ItemGroup>
     <Folder Include="www\" />
-    <Folder Include="www\mode\" />
-    <Folder Include="www\theme\" />
     <Folder Include="ext\" />
+    <Folder Include="www\css\" />
+    <Folder Include="www\js\" />
+    <Folder Include="www\partials\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="www\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\codemirror.css">
+    <None Include="www\css\codemirror.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\jquery-1.9.1.min.js">
+    <None Include="www\css\theme\solarized.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\mode\clike.js">
+    <None Include="www\js\codemirror-3.1.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\theme\solarized.css">
+    <None Include="www\js\jquery-1.9.1.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\codemirror-3.1.js">
+    <None Include="www\js\mode\clike.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\files.html">
+    <None Include="www\partials\files.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\js\show-hint.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\css\show-hint.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

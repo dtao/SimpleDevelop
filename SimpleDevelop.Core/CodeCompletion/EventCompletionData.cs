@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public EventCompletionData(EventInfo eventInfo) : base(eventInfo)
         {
-            Image = EventImage;
+            Image = "EventImage";
         }
 
         public override object Description

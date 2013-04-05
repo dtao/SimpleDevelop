@@ -56,7 +56,7 @@ namespace SimpleDevelop.Mac
         
         public override void WindowDidLoad()
         {
-            this.webView.MainFrameUrl = "http://localhost:9999/index.html";
+            this.webView.MainFrameUrl = "http://localhost:9999/";
         }
         
         void HandleApplicationStopped(object sender, EventArgs e)

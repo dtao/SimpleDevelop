@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public EnumCompletionData(MemberInfo enumInfo) : base(enumInfo)
         {
-            Image = EnumImage;
+            Image = "EnumImage";
         }
     }
 }

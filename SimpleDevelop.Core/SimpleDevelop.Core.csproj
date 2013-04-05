@@ -13,9 +13,9 @@
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -23,14 +23,14 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
@@ -40,12 +40,12 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
     <WarningLevel>4</WarningLevel>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -62,6 +62,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\lib\NRefactory\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildOutputEventArgs.cs" />
@@ -72,6 +75,21 @@
     <Compile Include="ICodeExecutor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThrowExtensions.cs" />
+    <Compile Include="CodeCompletionHelper.cs" />
+    <Compile Include="CodeCompletion\ClassCompletionData.cs" />
+    <Compile Include="CodeCompletion\CompletionData.cs" />
+    <Compile Include="CodeCompletion\ConstantCompletionData.cs" />
+    <Compile Include="CodeCompletion\EnumCompletionData.cs" />
+    <Compile Include="CodeCompletion\EventCompletionData.cs" />
+    <Compile Include="CodeCompletion\FieldCompletionData.cs" />
+    <Compile Include="CodeCompletion\InterfaceCompletionData.cs" />
+    <Compile Include="CodeCompletion\MethodCompletionData.cs" />
+    <Compile Include="CodeCompletion\NamespaceCompletionData.cs" />
+    <Compile Include="CodeCompletion\PropertyCompletionData.cs" />
+    <Compile Include="CodeCompletion\StructCompletionData.cs" />
+    <Compile Include="Collections\ListBase.cs" />
+    <Compile Include="Collections\ListExtensions.cs" />
+    <Compile Include="Collections\SortedObservableCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -81,4 +99,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="CodeCompletion\" />
+    <Folder Include="Collections\" />
+  </ItemGroup>
 </Project>

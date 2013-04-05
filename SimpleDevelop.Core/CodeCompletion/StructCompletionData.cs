@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public StructCompletionData(Type type) : base(type)
         {
-            Image = StructImage;
+            Image = "StructImage";
         }
 
         public override object Description

@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public InterfaceCompletionData(Type type) : base(type)
         {
-            Image = InterfaceImage;
+            Image = "InterfaceImage";
         }
 
         public override object Description

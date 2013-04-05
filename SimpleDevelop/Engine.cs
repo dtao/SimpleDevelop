@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
@@ -6,7 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Web;
 
+using Newtonsoft.Json;
 using SimpleDevelop.Core;
+using SimpleDevelop.CodeCompletion;
 
 namespace SimpleDevelop
 {
@@ -14,6 +17,7 @@ namespace SimpleDevelop
     {
         HttpListener server;
         CSharpCodeExecutor compiler;
+        CodeCompletionHelper completionHelper;
         ManualResetEvent exitEvent;
 
         public event EventHandler Stopped;
@@ -23,6 +27,10 @@ namespace SimpleDevelop
             this.server = new HttpListener();
             this.server.Prefixes.Add("http://localhost:9999/");
             this.compiler = new CSharpCodeExecutor();
+
+            this.completionHelper = new CodeCompletionHelper();
+            this.completionHelper.AddReference(typeof(System.Object));
+
             this.exitEvent = new ManualResetEvent(false);
         }
         
@@ -65,31 +73,58 @@ namespace SimpleDevelop
 
         void HandleRequest(HttpListenerContext context)
         {
-            HttpListenerRequest request = context.Request;
-            NameValueCollection parameters = ParseRequest(request);
-
-            switch (request.HttpMethod + ":" + request.Url.AbsolutePath)
+            try
             {
-            case "POST:/open":
-                FileInfo[] files = new DirectoryInfo(parameters["directory"].Trim()).GetFiles();
-                context.SendFile("files.html", new { Files = files });
-                break;
-            case "GET:/open":
-                context.SendFile(parameters["filepath"]);
-                break;
-            case "POST:/compile":
-                this.compiler.ExecuteWithCallback(parameters["code"], output =>
+                HttpListenerRequest request = context.Request;
+                NameValueCollection parameters = ParseRequest(request);
+                
+                switch (request.HttpMethod + ":" + request.Url.AbsolutePath)
                 {
-                    context.SendTextResponse(output, null);
-                });
-                break;
-            case "POST:/exit":
-                Stop();
-                break;
-            default:
-                context.SendAsset(GetFileName(context.Request.Url.AbsolutePath));
-                break;
+                case "GET:/":
+                    context.SendFile("index.html");
+                    break;
+                case "POST:/open":
+                    FileInfo[] files = new DirectoryInfo(parameters["directory"].Trim()).GetFiles();
+                    context.SendFile("partials/files.html", new { Files = files });
+                    break;
+                case "GET:/open":
+                    context.SendFile(parameters["filepath"]);
+                    break;
+                case "POST:/compile":
+                    this.compiler.ExecuteWithCallback(parameters["code"], output =>
+                    {
+                        context.SendTextResponse(output, null);
+                    });
+                    break;
+                case "POST:/complete":
+                    SendCompletionData(context, parameters);
+                    break;
+                case "POST:/parse":
+                    this.completionHelper.ProcessCode(parameters["code"]);
+                    context.Ok();
+                    break;
+                case "POST:/exit":
+                    Stop();
+                    break;
+                default:
+                    context.SendAsset(GetFileName(context.Request.Url.AbsolutePath));
+                    break;
+                }
             }
+            catch (Exception ex)
+            {
+                context.SendJsonResponse(new { Error = ex.ToString() });
+            }
+        }
+
+        void SendCompletionData(HttpListenerContext context, NameValueCollection parameters)
+        {
+            dynamic data = JsonConvert.DeserializeObject(parameters["data"]);
+            string token = (string)data.token;
+            int line = (int)data.line;
+            int col = (int)data.col;
+            IList<CompletionData> completionData = this.completionHelper.GetCompletionData(token, line, col);
+            context.SendJsonResponse(new { Items = completionData });
         }
 
         string ReadRequestBody(HttpListenerRequest request)

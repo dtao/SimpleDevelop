@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public ClassCompletionData(Type type) : base(type)
         {
-            Image = NestedTypeImage;
+            Image = "NestedTypeImage";
         }
 
         public override object Description

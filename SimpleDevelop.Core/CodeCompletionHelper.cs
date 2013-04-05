@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.Ast;
 using SimpleDevelop.CodeCompletion;
@@ -13,7 +12,7 @@ using SimpleDevelop.Collections;
 
 namespace SimpleDevelop
 {
-    class CodeCompletionHelper
+    public class CodeCompletionHelper
     {
         struct Loc : IComparable<Loc>
         {
@@ -38,20 +37,20 @@ namespace SimpleDevelop
             }
         }
 
-        private static readonly ICompletionData[] EmptyData = new ICompletionData[0];
+        private static readonly CompletionData[] EmptyData = new CompletionData[0];
 
         private SortedList<Loc, Dictionary<string, string>> _fields = new SortedList<Loc, Dictionary<string, string>>();
         private object _fieldsLock = new object();
         private SortedList<Loc, Dictionary<string, string>> _locals = new SortedList<Loc, Dictionary<string, string>>();
         private object _localsLock = new object();
-        private ConcurrentDictionary<string, ICompletionData[]> _namespaces = new ConcurrentDictionary<string, ICompletionData[]>();
-        private ConcurrentDictionary<string, ICompletionData[]> _staticCompletionItems = new ConcurrentDictionary<string, ICompletionData[]>();
-        private ConcurrentDictionary<string, ICompletionData[]> _instanceCompletionItems = new ConcurrentDictionary<string, ICompletionData[]>();
+        private ConcurrentDictionary<string, CompletionData[]> _namespaces = new ConcurrentDictionary<string, CompletionData[]>();
+        private ConcurrentDictionary<string, CompletionData[]> _staticCompletionItems = new ConcurrentDictionary<string, CompletionData[]>();
+        private ConcurrentDictionary<string, CompletionData[]> _instanceCompletionItems = new ConcurrentDictionary<string, CompletionData[]>();
 
-        public IList<ICompletionData> GetCompletionData(string token, int line, int column)
+        public IList<CompletionData> GetCompletionData(string token, int line, int column)
         {
             // Is this a static item?
-            ICompletionData[] completionData;
+            CompletionData[] completionData;
             if (_staticCompletionItems.TryGetValue(token, out completionData))
             {
                 return Array.AsReadOnly(completionData);
@@ -119,6 +118,18 @@ namespace SimpleDevelop
             return EmptyData;
         }
 
+        public void AddReference(Type type)
+        {
+            Action<Assembly> loadAssembly = LoadAssembly;
+            loadAssembly.BeginInvoke(type.Assembly, loadAssembly.EndInvoke, null);
+        }
+
+        public void AddReference(string assemblyPath)
+        {
+            Action<string> loadReference = LoadReference;
+            loadReference.BeginInvoke(assemblyPath, loadReference.EndInvoke, null);
+        }
+        
         public void ProcessCode(string code)
         {
             using (var reader = new StringReader(code))
@@ -245,26 +256,24 @@ namespace SimpleDevelop
             }
         }
 
-        public void AddReference(string assemblyPath)
-        {
-            Action<string> loadReference = LoadReference;
-            loadReference.BeginInvoke(assemblyPath, loadReference.EndInvoke, null);
-        }
-
         private void LoadReference(string assemblyPath)
         {
             try
             {
                 Assembly assembly = Assembly.LoadFrom(assemblyPath);
-
-                var publicTypes = from t in assembly.GetTypes()
-                                  where t.IsPublic
-                                  select t;
-
-                LoadTypes(publicTypes);
+                LoadAssembly(assembly);
             }
             catch
             { }
+        }
+
+        private void LoadAssembly(Assembly assembly)
+        {
+            var publicTypes = from t in assembly.GetTypes()
+                              where t.IsPublic
+                              select t;
+            
+            LoadTypes(publicTypes);
         }
 
         private void LoadTypes(IEnumerable<Type> types)
@@ -316,11 +325,11 @@ namespace SimpleDevelop
             return child.Substring(startIndex, length);
         }
 
-        private void LoadCompletionData(IEnumerable<Type> types, BindingFlags flags, IDictionary<string, ICompletionData[]> completionItems)
+        private void LoadCompletionData(IEnumerable<Type> types, BindingFlags flags, IDictionary<string, CompletionData[]> completionItems)
         {
             foreach (Type type in types)
             {
-                var completionData = new List<ICompletionData>();
+                var completionData = new List<CompletionData>();
 
                 Type[] nestedTypes = type.GetNestedTypes(flags);
                 if (nestedTypes.Length > 0)
