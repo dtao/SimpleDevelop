@@ -10,7 +10,7 @@ using SimpleDevelop.Core;
 
 namespace SimpleDevelop
 {
-    public class Application
+    public class Engine
     {
         HttpListener server;
         CSharpCodeExecutor compiler;
@@ -18,7 +18,7 @@ namespace SimpleDevelop
 
         public event EventHandler Stopped;
 
-        public Application()
+        public Engine()
         {
             this.server = new HttpListener();
             this.server.Prefixes.Add("http://localhost:9999/");

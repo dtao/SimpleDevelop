@@ -7,12 +7,12 @@ namespace SimpleDevelop.Basic
     {
         public static void Main (string[] args)
         {
-            var app = new Application();
-            app.Start();
+            var eng = new Engine();
+            eng.Start();
 
             Process.Start("http://localhost:9999/index.html");
 
-            app.WaitForExit();
+            eng.WaitForExit();
 
             Console.WriteLine("Finished!");
         }

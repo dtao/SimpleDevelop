@@ -12,7 +12,7 @@ namespace SimpleDevelop.Mac
 {
     public partial class MainWindowController : MonoMac.AppKit.NSWindowController
     {
-        Application app;
+        Engine eng;
         
         #region Constructors
         
@@ -38,9 +38,9 @@ namespace SimpleDevelop.Mac
         // Shared initialization code
         void Initialize()
         {
-            this.app = new Application();
-            this.app.Start();
-            this.app.Stopped += HandleApplicationStopped;
+            this.eng = new Engine();
+            this.eng.Start();
+            this.eng.Stopped += HandleApplicationStopped;
         }
         
         #endregion

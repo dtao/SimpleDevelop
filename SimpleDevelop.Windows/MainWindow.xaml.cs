@@ -19,15 +19,15 @@ namespace SimpleDevelop.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
-        Application app;
+        Engine eng;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            this.app = new Application();
-            this.app.Start();
-            this.app.Stopped += HandleApplicationStopped;
+            this.eng = new Engine();
+            this.eng.Start();
+            this.eng.Stopped += HandleApplicationStopped;
 
             this.browser.Navigate("http://localhost:9999/index.html");
         }

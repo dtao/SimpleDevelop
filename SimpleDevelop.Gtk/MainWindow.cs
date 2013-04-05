@@ -4,18 +4,18 @@ using WebKit;
 
 using SimpleDevelop;
 
-public partial class MainWindow: Gtk.Window
+public partial class MainWindow : Gtk.Window
 {
-    SimpleDevelop.Application app;
+    Engine eng;
     WebView webView;
 
-    public MainWindow(): base (Gtk.WindowType.Toplevel)
+    public MainWindow() : base(Gtk.WindowType.Toplevel)
     {
         Build();
 
-        this.app = new SimpleDevelop.Application();
-        this.app.Start();
-        this.app.Stopped += HandleApphandleStopped;
+        this.eng = new Engine();
+        this.eng.Start();
+        this.eng.Stopped += HandleApphandleStopped;
 
         this.webView = new WebView();
         this.mainContainer.Add(this.webView);
@@ -25,12 +25,12 @@ public partial class MainWindow: Gtk.Window
 
     protected void OnDeleteEvent(object sender, DeleteEventArgs a)
     {
-        Gtk.Application.Quit();
+        Application.Quit();
         a.RetVal = true;
     }
 
-    void HandleApphandleStopped (object sender, EventArgs e)
+    void HandleApphandleStopped(object sender, EventArgs e)
     {
-        Gtk.Application.Quit();
+        Application.Quit();
     }
 }

@@ -14,7 +14,7 @@ namespace SimpleDevelop
         static HttpListenerContextExtensions()
         {
             // This will work as long as all static assets are marked 'Copy to output directory'.
-            DocumentRoot = Path.Combine(Path.GetDirectoryName(typeof(SimpleDevelop.Application).Assembly.Location), "www");
+            DocumentRoot = Path.Combine(Path.GetDirectoryName(typeof(Engine).Assembly.Location), "www");
         }
 
         public static void SendTextResponse(this HttpListenerContext context, string text, object data = null)

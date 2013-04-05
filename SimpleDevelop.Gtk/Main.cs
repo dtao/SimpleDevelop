@@ -7,10 +7,10 @@ namespace SimpleDevelop.Gtk
     {
         public static void Main (string[] args)
         {
-            global::Gtk.Application.Init ();
+            Application.Init ();
             MainWindow win = new MainWindow ();
             win.Show ();
-            global::Gtk.Application.Run ();
+            Application.Run ();
         }
     }
 }
