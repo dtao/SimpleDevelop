@@ -214,6 +214,7 @@
 
         $(".compile").click(function() {
           sendRequest("/compile", { code: editor.getValue() }, {
+            dataType: "text",
             callback: function(results) {
               $body.attr("class", "viewing-results");
               $results.html("<pre>" + results + "</pre>");
