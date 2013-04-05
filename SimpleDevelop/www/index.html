@@ -268,7 +268,7 @@
         editor.addKeyMap({
           ".": function(e) {
             var cursor = e.getCursor();
-            var token  = e.getTokenAt(new CodeMirror.Pos(cursor.line, cursor.ch - 1));
+            var token  = e.getTokenAt(cursor);
             var json   = JSON.stringify({ token: token.string, line: cursor.line, col: cursor.ch });
             sendRequest("/complete", { data: json }, {
               callback: function(data) {

@@ -42,7 +42,6 @@ namespace SimpleDevelop
         private SortedList<Loc, Dictionary<string, string>> _fields = new SortedList<Loc, Dictionary<string, string>>();
         private object _fieldsLock = new object();
         private SortedList<Loc, Dictionary<string, string>> _locals = new SortedList<Loc, Dictionary<string, string>>();
-        private object _localsLock = new object();
         private ConcurrentDictionary<string, CompletionData[]> _namespaces = new ConcurrentDictionary<string, CompletionData[]>();
         private ConcurrentDictionary<string, CompletionData[]> _staticCompletionItems = new ConcurrentDictionary<string, CompletionData[]>();
         private ConcurrentDictionary<string, CompletionData[]> _instanceCompletionItems = new ConcurrentDictionary<string, CompletionData[]>();
@@ -65,18 +64,19 @@ namespace SimpleDevelop
             // Nope... is it a local variable?
             // Ugh, have to lock this...
             string typeName = null;
-            lock (_localsLock)
+            SortedList<Loc, Dictionary<string, string>> cachedLocals = _locals;
+            lock (cachedLocals)
             {
-                if (_locals.Count > 0)
+                if (cachedLocals.Count > 0)
                 {
                     var loc = new Loc(line, column);
-                    int index = _locals.Keys.BinarySearch(loc);
+                    int index = cachedLocals.Keys.BinarySearch(loc);
                     if (index > 0)
                     {
                         --index;
                     }
 
-                    Dictionary<string, string> variables = _locals.Values[index];
+                    Dictionary<string, string> variables = cachedLocals.Values[index];
                     variables.TryGetValue(token, out typeName);
                 }
             }
@@ -241,9 +241,10 @@ namespace SimpleDevelop
 
                 Location location = block.StartLocation;
                 var loc = new Loc(location.Line, location.Column);
-                lock (_localsLock)
+                SortedList<Loc, Dictionary<string, string>> cachedLocals = _locals;
+                lock (cachedLocals)
                 {
-                    _locals[loc] = variables;
+                    cachedLocals[loc] = variables;
                 }
             }
 
