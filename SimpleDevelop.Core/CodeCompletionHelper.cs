@@ -152,8 +152,6 @@ namespace SimpleDevelop
 
         private void ProcessNode(INode node)
         {
-            string value = node.ToString();
-
             var type = node as TypeDeclaration;
             if (type != null)
             {

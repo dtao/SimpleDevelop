@@ -120,10 +120,7 @@ namespace SimpleDevelop
         void SendCompletionData(HttpListenerContext context, NameValueCollection parameters)
         {
             dynamic data = JsonConvert.DeserializeObject(parameters["data"]);
-            string token = (string)data.token;
-            int line = (int)data.line;
-            int col = (int)data.col;
-            IList<CompletionData> completionData = this.completionHelper.GetCompletionData(token, line, col);
+            IList<CompletionData> completionData = this.completionHelper.GetCompletionData((string)data.token, (int)data.line, (int)data.col);
             context.SendJsonResponse(new { Items = completionData });
         }
 
