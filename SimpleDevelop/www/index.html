@@ -8,7 +8,8 @@
     <script type="text/javascript" src="/js/codemirror-3.1.js"></script>
     <script type="text/javascript" src="/js/show-hint.js"></script>
     <script type="text/javascript" src="/js/mode/clike.js"></script>
-    <script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="/js/json2.js"></script>
 
     <style type="text/css">
       html, body {
@@ -286,16 +287,17 @@
             setTimeout(function() {
               sendRequest("/complete", { data: json }, {
                 callback: function(data) {
-                  var list     = simpleMap(data.Items, "Text");
+                  var list = simpleMap(data.Items, "Text");
 
                   CodeMirror.showHint(editor, function() {
                     var position = editor.getCursor();
                     var partial  = editor.getTokenAt(position);
                     var matches  = simpleSelect(list, partial.string);
+                    var start    = partial.string === "." ? partial.start + 1 : partial.start;
 
                     return {
                       list: matches,
-                      from: new CodeMirror.Pos(position.line, partial.start),
+                      from: new CodeMirror.Pos(position.line, start),
                       to: position
                     };
                   });
@@ -303,8 +305,8 @@
               });
             }, 0);
 
-            // Is this really necessary? Feels wrong...
-            throw CodeMirror.Pass;
+            // Insert the damn dot!
+            editor.replaceRange(".", cursor, cursor);
           }
         });
 

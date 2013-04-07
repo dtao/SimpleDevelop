@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -58,13 +58,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="www\" />
-    <Folder Include="ext\" />
-    <Folder Include="www\css\" />
-    <Folder Include="www\js\" />
-    <Folder Include="www\partials\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="www\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -76,9 +70,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="www\js\codemirror-3.1.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="www\js\jquery-1.9.1.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="www\js\mode\clike.js">
@@ -99,5 +90,13 @@
       <Project>{CF193E1E-EB62-46F5-B3A5-0BD82B688E69}</Project>
       <Name>SimpleDevelop.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="www\js\jquery-1.9.1.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="www\js\json2.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
