@@ -43,6 +43,22 @@ namespace SimpleDevelop
             context.SendTextResponse(json);
         }
 
+        public static void SendBinaryResponse(this HttpListenerContext context, byte[] bytes)
+        {
+            try
+            {
+                context.Response.ContentLength64 = bytes.LongLength;
+                using (Stream outputStream = context.Response.OutputStream)
+                {
+                    outputStream.Write(bytes, 0, bytes.Length);
+                }
+            }
+            finally
+            {
+                context.Response.Close();
+            }
+        }
+
         public static void SendAsset(this HttpListenerContext context, string filename, object data = null)
         {
             string extension = Path.GetExtension(filename);
@@ -56,7 +72,14 @@ namespace SimpleDevelop
 
             if (File.Exists(filepath))
             {
-                context.SendTextResponse(File.ReadAllText(filepath), data ?? GetDataForFile(filepath));
+                if (context.Response.ContentType == null || context.Response.ContentType.StartsWith("text"))
+                {
+                    context.SendTextResponse(File.ReadAllText(filepath), data ?? GetDataForFile(filepath));
+                }
+                else
+                {
+                    context.SendBinaryResponse(File.ReadAllBytes(filepath));
+                }
             }
             else
             {
@@ -113,6 +136,9 @@ namespace SimpleDevelop
             {
                 case ".css": return "text/css";
                 case ".js": return "text/javascript";
+                case ".gif": return "image/gif";
+                case ".jpg": return "image/jpeg";
+                case ".png": return "image/png";
                 default: return "text/html";
             }
         }

@@ -34,6 +34,53 @@
         overflow: auto;
       }
 
+      .CodeMirror-hint {
+        color: black;
+        font-family: "Source Code Pro", Consolas, Inconsolata, monospace;
+        padding-left: 20px;
+      }
+
+      .CodeMirror-hint.Namespace {
+        background: url("/images/code/Namespace.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Class {
+        background: url("/images/code/Class.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Struct {
+        background: url("/images/code/Struct.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Enum {
+        background: url("/images/code/Enum.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Method {
+        background: url("/images/code/Method.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Property {
+        background: url("/images/code/Property.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Event {
+        background: url("/images/code/Event.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint.Variable {
+        background: url("/images/code/Variable.gif") no-repeat left;
+      }
+
+      .CodeMirror-hint:nth-child(even) {
+        background-color: #eee;
+      }
+
+      .CodeMirror-hint-active {
+        background-color: #888 !important;
+        color: white;
+      }
+
       .editing .CodeMirror {
         left: 0;
         right: 0;
@@ -194,23 +241,27 @@
           }, options));
         }
 
-        // I don't care.
-        function simpleMap(array, propertyName) {
-          var mapped = [];
+        function mapCompletionItemsToHints(array, propertyMap) {
+          var hints = [];
+          var currentHint = null;
           for (var i = 0; i < array.length; ++i) {
-            mapped.push(array[i][propertyName]);
+            currentHint = {};
+            for (var p in propertyMap) {
+              currentHint[p] = array[i][propertyMap[p]];
+            }
+            hints.push(currentHint);
           }
-          return mapped;
+          return hints;
         }
 
-        function simpleSelect(array, prefix) {
-          var selected = [];
-          for (var i = 0; i < array.length; ++i) {
-            if (prefix === "." || array[i].indexOf(prefix) === 0) {
-              selected.push(array[i]);
+        function filterHintsByPrefix(hints, prefix) {
+          var filteredHints = [];
+          for (var i = 0; i < hints.length; ++i) {
+            if (prefix === "." || hints[i].text.indexOf(prefix) === 0) {
+              filteredHints.push(hints[i]);
             }
           }
-          return selected;
+          return filteredHints;
         }
 
         $(".open").click(function() {
@@ -287,12 +338,15 @@
             setTimeout(function() {
               sendRequest("/complete", { data: json }, {
                 callback: function(data) {
-                  var list = simpleMap(data.Items, "Text");
+                  var list = mapCompletionItemsToHints(data.Items, {
+                    text: "Text",
+                    className: "Image"
+                  });
 
                   CodeMirror.showHint(editor, function() {
                     var position = editor.getCursor();
                     var partial  = editor.getTokenAt(position);
-                    var matches  = simpleSelect(list, partial.string);
+                    var matches  = filterHintsByPrefix(list, partial.string);
                     var start    = partial.string === "." ? partial.start + 1 : partial.start;
 
                     return {
