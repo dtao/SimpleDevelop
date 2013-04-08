@@ -13,10 +13,5 @@ namespace SimpleDevelop.CodeCompletion
         {
             get { return -2; }
         }
-        
-        public override object Description
-        {
-            get { return string.Format("class {0}", _memberInfo.Name); }
-        }
     }
 }

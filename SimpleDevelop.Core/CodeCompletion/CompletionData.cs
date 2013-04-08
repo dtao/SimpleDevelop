@@ -37,7 +37,7 @@ namespace SimpleDevelop.CodeCompletion
 
         public virtual object Description
         {
-            get { return Text; }
+            get { return null; }
         }
 
         protected string GetFriendlyTypeName(string typeName)

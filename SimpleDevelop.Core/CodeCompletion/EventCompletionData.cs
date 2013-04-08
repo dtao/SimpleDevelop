@@ -16,7 +16,7 @@ namespace SimpleDevelop.CodeCompletion
         
         public override object Description
         {
-            get { return string.Format("{0} {1}", GetFriendlyTypeName(_memberInfo.EventHandlerType.Name), _memberInfo.Name); }
+            get { return GetFriendlyTypeName(_memberInfo.EventHandlerType.Name); }
         }
     }
 }

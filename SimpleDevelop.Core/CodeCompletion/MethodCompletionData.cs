@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 
 namespace SimpleDevelop.CodeCompletion
 {
@@ -16,7 +17,14 @@ namespace SimpleDevelop.CodeCompletion
 
         public override object Description
         {
-            get { return string.Format("{0} {1}", GetFriendlyTypeName(_memberInfo.ReturnType.Name), _memberInfo.Name); }
+            get { return string.Format("{0} ({1})", GetFriendlyTypeName(_memberInfo.ReturnType.Name), FormatParameters()); }
+        }
+
+        private string FormatParameters()
+        {
+            var parameters = from p in _memberInfo.GetParameters()
+                             select string.Format("{0} {1}", GetFriendlyTypeName(p.ParameterType.Name), p.Name);
+            return string.Join(", ", parameters);
         }
     }
 }
