@@ -4,7 +4,7 @@ using WebKit;
 
 using SimpleDevelop;
 
-public partial class MainWindow : Gtk.Window
+public partial class MainWindow : Gtk.Window, INativeInterface
 {
     Engine eng;
     WebView webView;
@@ -13,7 +13,7 @@ public partial class MainWindow : Gtk.Window
     {
         Build();
 
-        this.eng = new Engine();
+        this.eng = new Engine(this);
         this.eng.Start();
         this.eng.Stopped += HandleApphandleStopped;
 

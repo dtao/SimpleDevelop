@@ -15,6 +15,7 @@ namespace SimpleDevelop
 {
     public class Engine
     {
+        INativeInterface ui;
         HttpListener server;
         CSharpCodeExecutor compiler;
         CodeCompletionHelper completionHelper;
@@ -22,8 +23,10 @@ namespace SimpleDevelop
 
         public event EventHandler Stopped;
 
-        public Engine()
+        public Engine(INativeInterface ui = null)
         {
+            this.ui = ui ?? new NullInterface();
+
             this.server = new HttpListener();
             this.server.Prefixes.Add("http://localhost:9999/");
             this.compiler = new CSharpCodeExecutor();
@@ -33,7 +36,7 @@ namespace SimpleDevelop
 
             this.exitEvent = new ManualResetEvent(false);
         }
-        
+
         public void Start()
         {
             this.server.Start();
@@ -89,6 +92,12 @@ namespace SimpleDevelop
                     break;
                 case "GET:/open":
                     context.SendFile(parameters["filepath"]);
+                    this.ui.Title = "SimpleDevelop - " + Path.GetFileName(parameters["filepath"]);
+                    break;
+                case "POST:/save":
+                    File.WriteAllText(parameters["filepath"], parameters["code"]);
+                    this.ui.Title = "SimpleDevelop - " + Path.GetFileName(parameters["filepath"]);
+                    context.Ok();
                     break;
                 case "POST:/compile":
                     this.compiler.ExecuteWithCallback(parameters["code"], output =>
@@ -101,6 +110,10 @@ namespace SimpleDevelop
                     break;
                 case "POST:/parse":
                     this.completionHelper.ProcessCode(parameters["code"]);
+                    if (!this.ui.Title.EndsWith("*"))
+                    {
+                        this.ui.Title += "*";
+                    }
                     context.Ok();
                     break;
                 case "POST:/exit":

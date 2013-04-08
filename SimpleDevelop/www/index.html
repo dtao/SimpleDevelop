@@ -91,6 +91,10 @@
         color: white;
       }
 
+      .CodeMirror-hint-active .details {
+        color: #eee;
+      }
+
       .editing .CodeMirror {
         left: 0;
         right: 0;
@@ -121,7 +125,6 @@
         display: block;
         left: 50%;
         width: auto;
-        padding: 25px;
       }
 
       .dialog {
@@ -137,9 +140,44 @@
         z-index: 10;
       }
 
-      /* Why do the embedded web browsers suck? */
       .dialog.empty {
         display: none;
+      }
+
+      .dialog .content,
+      .results .content {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: auto;
+      }
+
+      .results .content {
+        padding: 25px;
+      }
+
+      .close {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        height: 40px;
+        width: 40px;
+        line-height: 40px;
+        color: white;
+        font-size: 24px;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      .close:before {
+        content: "\00d7"; /* times symbol (like 'x') */
+      }
+
+      .close:hover {
+        background-color: #888;
       }
 
       .toolbar {
@@ -216,18 +254,29 @@
               mode: "text/x-csharp",
               theme: "solarized dark"
             }),
-            changesToParse = false;
+            changesToParse = false,
+            currentFilepath = null;
+
+        function populateResults(html) {
+          $body.attr("class", "viewing-results");
+          $results.find(".content").html(html);
+        }
+
+        function clearResults() {
+          $body.attr("class", "editing");
+          $results.find(".content").empty();
+        }
 
         function populateDialog(html) {
-          $dialog.removeClass("empty").html(html);
+          $dialog.removeClass("empty").find(".content").html(html);
         }
 
         function clearDialog() {
-          $dialog.addClass("empty").empty();
+          $dialog.addClass("empty").find(".content").empty();
         }
 
         function displayError(error) {
-          $dialog.removeClass("empty").html("<pre>" + error + "</pre>");
+          populateDialog("<pre>" + error + "</pre>");
         }
 
         function sendRequest(route, data, options) {
@@ -284,6 +333,18 @@
           return filteredHints;
         }
 
+        $(".save").click(function() {
+          currentFilepath = currentFilepath || prompt("Enter a file path.");
+
+          if (!currentFilepath) {
+            return;
+          }
+
+          sendRequest("/save", { filepath: currentFilepath, code: editor.getValue() }, {
+            dataType: "text"
+          });
+        });
+
         $(".open").click(function() {
           var directory = prompt("Enter a directory.");
           sendRequest("/open", { directory: directory }, {
@@ -298,8 +359,7 @@
           sendRequest("/compile", { code: editor.getValue() }, {
             dataType: "text",
             callback: function(results) {
-              $body.attr("class", "viewing-results");
-              $results.html("<pre>" + results + "</pre>");
+              populateResults("<pre>" + results + "</pre>");
             }
           });
         });
@@ -310,12 +370,11 @@
           });
         });
 
-        $results.click(function() {
-          $body.attr("class", "editing");
-          $results.empty();
+        $results.on("click", ".close", function() {
+          clearResults();
         });
 
-        $dialog.click(function() {
+        $dialog.on("click", ".close", function() {
           clearDialog();
         });
 
@@ -323,9 +382,12 @@
           var filepath = $(this).attr("href");
           sendRequest("/open", { filepath: filepath }, {
             type: "GET",
+            dataType: "text",
             callback: function(text) {
+              currentFilepath = filepath;
               editor.setValue(text);
               clearDialog();
+              changesToParse = false;
             }
           });
           return false;
@@ -393,12 +455,22 @@
 
   <body class="editing">
     <textarea id="editor">{{ExampleCode}}</textarea>
-    <div class="results"></div>
-    <div class="dialog" class="empty"></div>
+
+    <div class="results">
+      <div class="content"></div>
+      <a href="javascript:void(0);" class="close"></a>
+    </div>
+
+    <div class="dialog" class="empty">
+      <div class="content"></div>
+      <a href="javascript:void(0);" class="close"></a>
+    </div>
+
     <div class="toolbar">
       <a class="exit" href="#">Exit</a>
       <a class="compile" href="#">Compile</a>
       <a class="open" href="#">Open</a>
+      <a class="save" href="#">Save</a>
     </div>
   </body>
 

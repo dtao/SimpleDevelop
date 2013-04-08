@@ -49,6 +49,8 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="ext\HttpListenerContextExtensions.cs" />
+    <Compile Include="INativeInterface.cs" />
+    <Compile Include="NullInterface.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
