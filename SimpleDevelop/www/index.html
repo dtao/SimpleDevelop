@@ -244,14 +244,24 @@
           }, options));
         }
 
+        function renderCompletion(listItem, data, completion) {
+          var description = document.createElement("span");
+          description.className = "details";
+          listItem.appendChild(document.createTextNode(completion.text));
+          description.appendChild(document.createTextNode(completion.description));
+          listItem.appendChild(description);
+        }
+
         function mapCompletionItemsToHints(array, propertyMap) {
           var hints = [];
           var currentHint = null;
           for (var i = 0; i < array.length; ++i) {
-            currentHint = {};
+            currentHint = { render: renderCompletion };
+
             for (var p in propertyMap) {
               currentHint[p] = array[i][propertyMap[p]];
             }
+
             hints.push(currentHint);
           }
           return hints;
@@ -343,7 +353,8 @@
                 callback: function(data) {
                   var list = mapCompletionItemsToHints(data.Items, {
                     text: "Text",
-                    className: "Image"
+                    className: "Image",
+                    description: "Description"
                   });
 
                   CodeMirror.showHint(editor, function() {
