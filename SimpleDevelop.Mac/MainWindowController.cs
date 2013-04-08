@@ -61,7 +61,7 @@ namespace SimpleDevelop.Mac
         
         void HandleApplicationStopped(object sender, EventArgs e)
         {
-            Close();
+            BeginInvokeOnMainThread(this.Close);
         }
     }
 }
