@@ -17,7 +17,18 @@ namespace SimpleDevelop.CodeCompletion
 
         public override object Description
         {
-            get { return string.Format("{0} ({1})", GetFriendlyTypeName(_memberInfo.ReturnType.Name), FormatParameters()); }
+            get
+            {
+                string formattedParameters = FormatParameters();
+                if (formattedParameters.Length > 0)
+                {
+                    return string.Format("{0} ({1})", GetFriendlyTypeName(_memberInfo.ReturnType.Name), formattedParameters);
+                }
+                else
+                {
+                    return GetFriendlyTypeName(_memberInfo.ReturnType.Name);
+                }
+            }
         }
 
         private string FormatParameters()
