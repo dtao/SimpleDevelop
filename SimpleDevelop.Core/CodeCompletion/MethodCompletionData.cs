@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public MethodCompletionData(MethodInfo methodInfo) : base(methodInfo)
         {
-            Image = "MethodImage";
+            Image = "Method";
         }
 
         public override object Description

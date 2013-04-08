@@ -9,7 +9,7 @@ namespace SimpleDevelop.CodeCompletion
         public NamespaceCompletionData(string ns) : base(null)
         {
             _namespace = ns;
-            Image = "NamespaceImage";
+            Image = "Namespace";
         }
 
         public override string Text

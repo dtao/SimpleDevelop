@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public FieldCompletionData(FieldInfo fieldInfo) : base(fieldInfo)
         {
-            Image = "FieldImage";
+            Image = "Field";
         }
 
         public override object Description

@@ -6,7 +6,7 @@ namespace SimpleDevelop.CodeCompletion
     {
         public PropertyCompletionData(PropertyInfo propertyInfo) : base(propertyInfo)
         {
-            Image = "PropertyImage";
+            Image = "Property";
         }
 
         public override object Description
