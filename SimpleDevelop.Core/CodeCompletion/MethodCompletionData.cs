@@ -9,6 +9,11 @@ namespace SimpleDevelop.CodeCompletion
             Image = "Method";
         }
 
+        public override int Rank
+        {
+            get { return 1; }
+        }
+
         public override object Description
         {
             get { return string.Format("{0} {1}", _memberInfo.ReturnType.Name, _memberInfo.Name); }

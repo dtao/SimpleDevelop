@@ -454,7 +454,9 @@ namespace SimpleDevelop
                                        group d by d.Text into g
                                        select g.First();
 
-                    completionItems[GetTypeKey(type)] = distinctData.ToArray();
+                    completionItems[GetTypeKey(type)] = (from d in distinctData
+                                                         orderby d.Rank, d.Text
+                                                         select d).ToArray();
                 }
             }
         }

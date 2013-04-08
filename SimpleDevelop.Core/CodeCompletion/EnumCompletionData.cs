@@ -8,5 +8,10 @@ namespace SimpleDevelop.CodeCompletion
         {
             Image = "Enum";
         }
+
+        public override int Rank
+        {
+            get { return 5; }
+        }
     }
 }

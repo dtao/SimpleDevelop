@@ -5,6 +5,7 @@ namespace SimpleDevelop.CodeCompletion
 {
     public abstract class CompletionData
     {
+        public abstract int Rank { get; }
         public abstract string Text { get; }
     }
 

@@ -9,6 +9,11 @@ namespace SimpleDevelop.CodeCompletion
             Image = "Event";
         }
 
+        public override int Rank
+        {
+            get { return 3; }
+        }
+        
         public override object Description
         {
             get { return string.Format("{0} {1}", _memberInfo.EventHandlerType.Name, _memberInfo.Name); }

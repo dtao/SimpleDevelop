@@ -9,6 +9,11 @@ namespace SimpleDevelop.CodeCompletion
             Image = "Struct";
         }
 
+        public override int Rank
+        {
+            get { return -1; }
+        }
+        
         public override object Description
         {
             get { return string.Format("struct {0}", _memberInfo.Name); }

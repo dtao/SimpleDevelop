@@ -12,6 +12,11 @@ namespace SimpleDevelop.CodeCompletion
             Image = "Namespace";
         }
 
+        public override int Rank
+        {
+            get { return -3; }
+        }
+        
         public override string Text
         {
             get { return _namespace; }
