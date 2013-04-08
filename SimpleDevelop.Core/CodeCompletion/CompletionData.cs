@@ -39,5 +39,25 @@ namespace SimpleDevelop.CodeCompletion
         {
             get { return Text; }
         }
+
+        protected string GetFriendlyTypeName(string typeName)
+        {
+            switch (typeName)
+            {
+                case "Void":
+                case "String":
+                case "Object":
+                case "Double":
+                case "Decimal": return typeName.ToLower();
+                case "Boolean": return "bool";
+                case "Int64": return "long";
+                case "Int32": return "int";
+                case "UInt32": return "uint";
+                case "UInt64": return "ulong";
+                case "Single": return "float";
+            }
+
+            return typeName;
+        }
     }
 }

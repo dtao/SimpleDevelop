@@ -16,7 +16,7 @@ namespace SimpleDevelop.CodeCompletion
 
         public override object Description
         {
-            get { return string.Format("{0} {1}", _memberInfo.ReturnType.Name, _memberInfo.Name); }
+            get { return string.Format("{0} {1}", GetFriendlyTypeName(_memberInfo.ReturnType.Name), _memberInfo.Name); }
         }
     }
 }
