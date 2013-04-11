@@ -63,8 +63,22 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup />
   <ItemGroup>
+    <Folder Include="www\partials\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="www\fonts\SourceCodePro.eot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\fonts\SourceCodePro.woff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\fonts\SourceSansPro.eot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="www\fonts\SourceSansPro.woff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="www\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -89,16 +103,10 @@
     <None Include="www\js\mode\clike.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="www\partials\files.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="www\js\show-hint.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="www\css\show-hint.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="www\js\mustache.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="www\images\icons\Build.png">

@@ -14,6 +14,22 @@
     <script type="text/javascript" src="/js/json2.js"></script>
 
     <style type="text/css">
+      @font-face {
+        font-family: 'Source Code Pro';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/fonts/SourceCodePro.eot');
+        src: local('Source Code Pro'), local('SourceCodePro-Regular'), url('/fonts/SourceCodePro.eot') format('embedded-opentype'), url('/fonts/SourceCodePro.woff') format('woff');
+      }
+
+      @font-face {
+        font-family: 'Source Sans Pro';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/fonts/SourceSansPro.eot');
+        src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url('/fonts/SourceSansPro.eot') format('embedded-opentype'), url('/fonts/SourceSansPro.woff') format('woff');
+      }
+
       html, body {
         height: 100%;
         width: 100%;
@@ -31,6 +47,7 @@
         resize: horizontal;
 
         background-color: rgb(0, 43, 54);
+        font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
       }
 
       .project a {
@@ -234,7 +251,7 @@
         float: right;
         line-height: 60px;
         color: #fff;
-        font-family: "Open Sans", Helvetica, Arial, sans-serif;
+        font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
         font-size: 16px;
         padding: 0 1em;
         text-decoration: none;

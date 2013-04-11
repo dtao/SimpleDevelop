@@ -139,6 +139,8 @@ namespace SimpleDevelop
                 case ".gif": return "image/gif";
                 case ".jpg": return "image/jpeg";
                 case ".png": return "image/png";
+                case ".eot": return "application/vnd.ms-fontobject";
+                case ".woff": return "application/x-font-woff";
                 default: return "text/html";
             }
         }
