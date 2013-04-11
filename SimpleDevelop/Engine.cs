@@ -86,28 +86,34 @@ namespace SimpleDevelop
                 case "GET:/":
                     context.SendFile("index.html");
                     break;
-                case "POST:/open":
-                    FileInfo[] files = new DirectoryInfo(parameters["directory"].Trim()).GetFiles();
-                    context.SendFile("partials/files.html", new { Files = files });
-                    break;
+
                 case "GET:/open":
+                    var projectTree = new FileSystemEntry(parameters["directory"].Trim());
+                    context.SendJsonResponse(projectTree);
+                    break;
+
+                case "GET:/load":
                     context.SendFile(parameters["filepath"]);
                     this.ui.Title = "SimpleDevelop - " + Path.GetFileName(parameters["filepath"]);
                     break;
+
                 case "POST:/save":
                     File.WriteAllText(parameters["filepath"], parameters["code"]);
                     this.ui.Title = "SimpleDevelop - " + Path.GetFileName(parameters["filepath"]);
                     context.Ok();
                     break;
+
                 case "POST:/compile":
                     this.compiler.ExecuteWithCallback(parameters["code"], output =>
                     {
                         context.SendTextResponse(output, null);
                     });
                     break;
+
                 case "POST:/complete":
                     SendCompletionData(context, parameters);
                     break;
+
                 case "POST:/parse":
                     this.completionHelper.ProcessCode(parameters["code"]);
                     if (!this.ui.Title.EndsWith("*"))
@@ -116,9 +122,11 @@ namespace SimpleDevelop
                     }
                     context.Ok();
                     break;
+
                 case "POST:/exit":
                     Stop();
                     break;
+
                 default:
                     context.SendAsset(GetFileName(context.Request.Url.AbsolutePath));
                     break;
